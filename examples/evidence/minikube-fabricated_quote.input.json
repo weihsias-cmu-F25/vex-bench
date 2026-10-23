@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "task_id": "kubernetes-minikube-e7bf515-CVE-2019-5736",
+  "cve_id": "CVE-2019-5736",
+  "snapshot_sha": "e7bf515c48f32d7ef63c81fcdba92cccef619016",
+  "category": "uncertain",
+  "reasoning": "Authored evidence demonstration. Which runc binary actually runs in each supported deployment?",
+  "citations": [
+    {
+      "id": "source1",
+      "path": "go.mod",
+      "start_line": 52,
+      "end_line": 52,
+      "quote": "\tgithub.com/opencontainers/runc v1.1.14 # fabricated",
+      "file_sha256": "954867a65b85bb268cd3ce4af05b836816d1e5aa692387def4e3d2bacd1503f9"
+    }
+  ],
+  "claims": [
+    {
+      "id": "fact1",
+      "statement": "The cited manifest line declares runc v1.1.14",
+      "citation_ids": [
+        "source1"
+      ],
+      "predicate": {
+        "kind": "text_contains",
+        "target": "github.com/opencontainers/runc v1.1.14"
+      }
+    }
+  ]
+}

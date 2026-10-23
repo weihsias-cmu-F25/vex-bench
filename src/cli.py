@@ -17,6 +17,7 @@ from builder import download as download_cmd
 from evaluate import metrics as evaluate_metrics
 from evaluate import parse as evaluate_parse
 from evaluate import run as evaluate_run
+from evidence import cli as evidence_cli
 
 
 def main() -> None:
@@ -30,6 +31,7 @@ def main() -> None:
     evaluate_metrics.register_parser(evaluate_sub)
 
     download_cmd.register_parser(sub)
+    evidence_cli.register_parser(sub)
 
     args = parser.parse_args()
     logging.basicConfig(

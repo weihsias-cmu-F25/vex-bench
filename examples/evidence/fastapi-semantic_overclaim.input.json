@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "task_id": "fastapi-fastapi-febf6b6-CVE-2024-47874",
+  "cve_id": "CVE-2024-47874",
+  "snapshot_sha": "febf6b6a52e36e0d64920fb54670ad7fc29b2eaa",
+  "category": "code_not_reachable",
+  "reasoning": "Authored evidence demonstration. Does attacker input reach an affected Starlette multipart parser?",
+  "citations": [
+    {
+      "id": "source1",
+      "path": "fastapi/routing.py",
+      "start_line": 247,
+      "end_line": 247,
+      "quote": "                        body = await request.form()",
+      "file_sha256": "58ad3a23065ec91c3191d078b8767b2578a7c6d54ec4cf0a7b4b6a1da0cebd80"
+    }
+  ],
+  "claims": [
+    {
+      "id": "fact1",
+      "statement": "This entire application cannot be exploited",
+      "citation_ids": [
+        "source1"
+      ],
+      "predicate": {
+        "kind": "semantic",
+        "target": "Repository-wide unreachability"
+      }
+    }
+  ]
+}

@@ -1,3 +1,5 @@
+from evidence.prompt import EVIDENCE_OUTPUT_INSTRUCTIONS
+
 VULNERABILITY_ANALYSIS_PROMPT = """
 <ROLE>
 You are a security analyst. Decide whether the given CVE actually affects current codebase, and classify the result into one of 12 fixed categories.
@@ -93,4 +95,8 @@ Reasoning must be grounded in concrete evidence — cite file paths, manifest en
 
 PROMPTS: dict[str, str] = {
     "vuln": VULNERABILITY_ANALYSIS_PROMPT,
+    "evidence_v1": VULNERABILITY_ANALYSIS_PROMPT
+    + "\n\n"
+    + EVIDENCE_OUTPUT_INSTRUCTIONS
+    + "\nTask ID: {task_id}\nRepository snapshot SHA: {snapshot_sha}",
 }

@@ -267,3 +267,14 @@ If you found VEX-Bench useful, please cite our paper.
       url={https://arxiv.org/abs/2609.08040}, 
 }
 ```
+
+## Local evidence-verifier extension
+
+This working branch adds `vex-bench verify`, a strict evidence schema, local AST
+checks, 27 tests and three-case authored demonstrations. It checks evidence
+integrity and local predicates. Exploitability conclusions still need review.
+
+See [the Chinese walkthrough](WALKTHROUGH.zh-TW.md) for setup and demo commands,
+and [the milestone report](MILESTONE_REPORT.md) for measured results and limitations.
+On this macOS setup, use `uv run --no-editable` to avoid hidden `.pth` import issues.
+The full paid-agent baseline has not been run.

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "task_id": "infiniflow-ragflow-c68767a-CVE-2024-36039",
+  "cve_id": "CVE-2024-36039",
+  "snapshot_sha": "c68767acdde0bbe521fad7f202f01130d7aa4ce3",
+  "category": "uncertain",
+  "reasoning": "Authored evidence demonstration. Can attacker-controlled dictionary keys reach PyMySQL's vulnerable API?",
+  "citations": [
+    {
+      "id": "source1",
+      "path": "api/db/db_models.py",
+      "start_line": 30,
+      "end_line": 30,
+      "quote": "from playhouse.pool import PooledMySQLDatabase",
+      "file_sha256": "a5b52d93ac0b9e496473386452d80519033ac8c4ae8e729f0b37700a60ef220c"
+    }
+  ],
+  "claims": [
+    {
+      "id": "fact1",
+      "statement": "The cited span imports the pooled MySQL database class",
+      "citation_ids": [
+        "source1"
+      ],
+      "predicate": {
+        "kind": "python_import",
+        "target": "invented.safe_api"
+      }
+    }
+  ]
+}

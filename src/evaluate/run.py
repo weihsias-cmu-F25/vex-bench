@@ -42,7 +42,11 @@ def _run_one(task: dict, rep: int, *, config: ExperimentConfig, agent: Agent) ->
         logger.info("%s [RE-RUN] cached result unparseable: %s", tag, run_dir_per_rep)
 
     run_dir_per_rep.mkdir(parents=True, exist_ok=True)
-    prompt = config.prompt_text.replace("{cve_id}", task["cve_id"])
+    prompt = (
+        config.prompt_text.replace("{cve_id}", task["cve_id"])
+        .replace("{task_id}", task["task_id"])
+        .replace("{snapshot_sha}", task["commit_sha"])
+    )
     logger.info("%s [RUN] src=%s lang=%s", tag, src_cwd, language)
     ctx = RunContext(
         cwd=src_cwd,
@@ -80,9 +84,7 @@ def run(config: ExperimentConfig) -> None:
     if not prompt_file.exists():
         prompt_file.write_text(config.prompt_text, encoding="utf-8")
 
-    logger.info(
-        "prompt=%s hash=%s parallel=%d", config.prompt, config.prompt_hash, config.parallel
-    )
+    logger.info("prompt=%s hash=%s parallel=%d", config.prompt, config.prompt_hash, config.parallel)
 
     jobs = [(task, rep) for task in tasks for rep in range(1, config.repeats + 1)]
     total = len(jobs)

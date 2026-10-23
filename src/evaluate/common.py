@@ -11,6 +11,7 @@ from evaluate.prompts import PROMPTS
 
 BENCHMARKS: dict[str, Path] = {
     "vex_bench": Path("benchmark/tasks/vex_bench.jsonl"),
+    "milestone_demo": Path("benchmark/tasks/milestone_demo.jsonl"),
 }
 
 PROMPT_HASH_LEN = 12

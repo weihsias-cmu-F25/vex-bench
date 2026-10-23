@@ -1,0 +1,171 @@
+{
+  "$defs": {
+    "Citation": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "start_line": {
+          "minimum": 1,
+          "title": "Start Line",
+          "type": "integer"
+        },
+        "end_line": {
+          "minimum": 1,
+          "title": "End Line",
+          "type": "integer"
+        },
+        "quote": {
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        },
+        "file_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "File Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "path",
+        "start_line",
+        "end_line",
+        "quote",
+        "file_sha256"
+      ],
+      "title": "Citation",
+      "type": "object"
+    },
+    "Claim": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "statement": {
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        },
+        "predicate": {
+          "$ref": "#/$defs/Predicate"
+        },
+        "citation_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Citation Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "statement",
+        "predicate",
+        "citation_ids"
+      ],
+      "title": "Claim",
+      "type": "object"
+    },
+    "Predicate": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "text_contains",
+            "python_import",
+            "python_call",
+            "semantic"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "target": {
+          "minLength": 1,
+          "title": "Target",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "target"
+      ],
+      "title": "Predicate",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "task_id": {
+      "minLength": 1,
+      "title": "Task Id",
+      "type": "string"
+    },
+    "cve_id": {
+      "pattern": "^CVE-\\d{4}-\\d{4,}$",
+      "title": "Cve Id",
+      "type": "string"
+    },
+    "snapshot_sha": {
+      "pattern": "^[0-9a-f]{40}$",
+      "title": "Snapshot Sha",
+      "type": "string"
+    },
+    "category": {
+      "title": "Category",
+      "type": "string"
+    },
+    "reasoning": {
+      "minLength": 1,
+      "title": "Reasoning",
+      "type": "string"
+    },
+    "citations": {
+      "items": {
+        "$ref": "#/$defs/Citation"
+      },
+      "maxItems": 100,
+      "minItems": 1,
+      "title": "Citations",
+      "type": "array"
+    },
+    "claims": {
+      "items": {
+        "$ref": "#/$defs/Claim"
+      },
+      "maxItems": 100,
+      "minItems": 1,
+      "title": "Claims",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "task_id",
+    "cve_id",
+    "snapshot_sha",
+    "category",
+    "reasoning",
+    "citations",
+    "claims"
+  ],
+  "title": "Explanation",
+  "type": "object"
+}
