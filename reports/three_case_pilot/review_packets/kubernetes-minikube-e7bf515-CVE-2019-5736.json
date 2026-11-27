@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "task_id": "kubernetes-minikube-e7bf515-CVE-2019-5736",
+  "cve_id": "CVE-2019-5736",
+  "snapshot_sha": "e7bf515c48f32d7ef63c81fcdba92cccef619016",
+  "proposed_category": "uncertain",
+  "reasoning": "The repository links CVE-2019-5736 as a container-escape example, but the public advisory could not be retrieved to verify the affected version range. The Go manifest selects github.com/opencontainers/runc v1.1.14, and the ISO build selects upstream runc v1.1.15. The older January 2019 entry in go.sum is a go.mod checksum, not evidence that the corresponding runtime is built or shipped. The KIC base image also installs containerd.io without an exact package version in the Dockerfile. These files establish which dependencies are declared, but do not establish that an affected runtime is present or reachable.",
+  "verifier_decision": "needs_review",
+  "obligations": [
+    {
+      "id": "advisory_scope",
+      "question": "Which advisory source identifies the affected component, versions, operation, and trigger?"
+    },
+    {
+      "id": "unresolved_precondition",
+      "question": "Which exact exploitability precondition remains unresolved?"
+    }
+  ],
+  "citations": [
+    {
+      "id": "c1",
+      "path": "go.mod",
+      "start_line": 52,
+      "end_line": 52,
+      "quote": "\tgithub.com/opencontainers/runc v1.1.14",
+      "file_sha256": "954867a65b85bb268cd3ce4af05b836816d1e5aa692387def4e3d2bacd1503f9",
+      "integrity_valid": true
+    },
+    {
+      "id": "c2",
+      "path": "deploy/iso/minikube-iso/package/runc-master/runc-master.mk",
+      "start_line": 7,
+      "end_line": 10,
+      "quote": "RUNC_MASTER_VERSION = v1.1.15\nRUNC_MASTER_COMMIT = bc20cb4497af9af01bea4a8044f1678ffca2745c\nRUNC_MASTER_SITE = https://github.com/opencontainers/runc/archive\nRUNC_MASTER_SOURCE = $(RUNC_MASTER_VERSION).tar.gz",
+      "file_sha256": "86d3007a41a19293682e591c558e1e70babb31d0bd130fe7b44e5abc3f47ef13",
+      "integrity_valid": true
+    },
+    {
+      "id": "c3",
+      "path": "go.sum",
+      "start_line": 1332,
+      "end_line": 1332,
+      "quote": "github.com/opencontainers/runc v0.0.0-20190115041553-12f6a991201f/go.mod h1:qT5XzbpPznkRYVz/mWwUaVBUv2rmF59PVA73FjuZG0U=",
+      "file_sha256": "e0efa51bc3d7c0d91e9d0ea9c942beb2486ed0147b828cb4efea2d965cefd72f",
+      "integrity_valid": true
+    },
+    {
+      "id": "c4",
+      "path": "site/content/en/docs/drivers/none.md",
+      "start_line": 31,
+      "end_line": 31,
+      "quote": "* Containers may be able to execute arbitrary code on your host, by using container escape vulnerabilities such as [CVE-2019-5736](https://access.redhat.com/security/vulnerabilities/runcescape). Please keep your release of minikube up to date.",
+      "file_sha256": "10d4042a2e25daaee6408fe892c2ba4c9dc95474807b18ee05277480e998fc23",
+      "integrity_valid": true
+    },
+    {
+      "id": "c5",
+      "path": "deploy/kicbase/Dockerfile",
+      "start_line": 159,
+      "end_line": 159,
+      "quote": "    clean-install docker-ce docker-ce-cli containerd.io docker-buildx-plugin",
+      "file_sha256": "b1b131533ad0ec0ec1daf324d2f9386c6bb777ee002ec827b9995e81266992ec",
+      "integrity_valid": true
+    }
+  ],
+  "claims": [
+    {
+      "id": "cl1",
+      "statement": "The Go manifest declares github.com/opencontainers/runc v1.1.14.",
+      "predicate": {
+        "kind": "text_contains",
+        "target": "github.com/opencontainers/runc v1.1.14"
+      },
+      "citation_ids": [
+        "c1"
+      ],
+      "local_status": "verified_local_predicate"
+    },
+    {
+      "id": "cl2",
+      "statement": "The ISO recipe selects the upstream runc v1.1.15 source archive.",
+      "predicate": {
+        "kind": "semantic",
+        "target": "ISO runc source version"
+      },
+      "citation_ids": [
+        "c2"
+      ],
+      "local_status": "requires_review"
+    },
+    {
+      "id": "cl3",
+      "statement": "The January 2019 go.sum record checksums the dependency's go.mod; it does not establish selection of that older runtime.",
+      "predicate": {
+        "kind": "semantic",
+        "target": "runc Go module version selection"
+      },
+      "citation_ids": [
+        "c1",
+        "c3"
+      ],
+      "local_status": "requires_review"
+    },
+    {
+      "id": "cl4",
+      "statement": "The local documentation names the CVE without giving an affected version range, and the KIC install command does not pin containerd.io to an exact package version.",
+      "predicate": {
+        "kind": "semantic",
+        "target": "CVE-2019-5736 affected-version and KIC package resolution evidence"
+      },
+      "citation_ids": [
+        "c4",
+        "c5"
+      ],
+      "local_status": "requires_review"
+    }
+  ],
+  "review_scope": "A human must assess whether the reasoning and cited evidence support each obligation. External advisory URLs may be added in the annotation; this tool does not verify them.",
+  "packet_sha256": "450cd6e44b11c3556b6de2b2d4a609093b3e46046b3bafa58d583cae06fea5ac"
+}

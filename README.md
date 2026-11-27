@@ -166,7 +166,9 @@ for the full flag list shared by all three stages.
 ### Evidence-enabled experiment
 
 For the authored demos, live three-case pilot, and remaining work, see
-[Three-case evaluation status](OFFLINE_EVALUATION.md).
+[Three-case evaluation status](OFFLINE_EVALUATION.md). Selected answers,
+verifier reports, review packets, and metrics are committed in the
+[pilot receipt](reports/three_case_pilot/README.md).
 
 Use the same benchmark, agent, model, and `evidence_v1` prompt for all three
 stages. For the three selected cases, first download their pinned source trees:

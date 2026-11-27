@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "run_date": "2026-11-26",
+  "benchmark": "milestone_demo",
+  "agent": "opencode_host",
+  "model": "openai/gpt-6.2-sol",
+  "opencode_cli_version": "2.4.2",
+  "prompt_hash": "c048a5f709e8",
+  "raw_jsonl_stored_locally": true,
+  "cases": [
+    {
+      "task_id": "fastapi-fastapi-febf6b6-CVE-2024-47874",
+      "raw_jsonl_sha256": "f538a90cec45aec7640108b658461578cb2ce78121a82348fd15ecdb8ed4b026",
+      "answer_sha256": "56129250f8c6068b2684ee7bfbc3b48dbd04cc10a1a3188d0db89ff69b9fa12a"
+    },
+    {
+      "task_id": "infiniflow-ragflow-c68767a-CVE-2024-36039",
+      "raw_jsonl_sha256": "d508527fc52839a4cecf4ead2a3638c7223f3d15437c94dd03d1f5f8c7b727a8",
+      "answer_sha256": "85ce9ccda43cef3adc88a946d84af8f20c81c69721aa6c131608bdf2425bbe23"
+    },
+    {
+      "task_id": "kubernetes-minikube-e7bf515-CVE-2019-5736",
+      "raw_jsonl_sha256": "3a1b2ee8d1910e7864aae218a51b22fd5182723f74f90d28e61c6105bc9dfa60",
+      "answer_sha256": "56f72e31c15cd855299f7fa64bfbf93a26759e72cccb7160d8a8cf505c679216"
+    }
+  ]
+}

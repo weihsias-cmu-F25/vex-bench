@@ -48,8 +48,10 @@ cost estimate.
 
 Raw baseline outputs, parsed rows, metrics, evidence reports, and review packets
 are under `results/chatgpt_pilot/c048a5f709e8/opencode_host/gpt-6.2-sol/`.
-`results/` is intentionally ignored by Git; keep those local artifacts when
-auditing this run.
+`results/` is intentionally ignored by Git. A selected, credential-free
+[pilot receipt](reports/three_case_pilot/README.md) containing the final
+answers, reports, review packets, metrics, and raw-output hashes is committed
+for team review. Keep the local raw artifacts for a full audit.
 
 ## Feedback-policy replay and quota limit
 

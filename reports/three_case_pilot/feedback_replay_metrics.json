@@ -1,0 +1,413 @@
+{
+  "config": {
+    "benchmark": "milestone_demo",
+    "agent": "opencode_host",
+    "model": "gpt-6.2-sol",
+    "prompt_hash": "c048a5f709e8",
+    "repeats": 1,
+    "feedback_rounds": 1
+  },
+  "binary": {
+    "accuracy": {
+      "mean": 0.6666666666666666,
+      "std": 0.0
+    },
+    "precision": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "recall": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "f1": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "totals": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 2,
+      "fn": 1,
+      "failed": 0
+    }
+  },
+  "multiclass": {
+    "accuracy": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "macro_precision": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "macro_recall": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "macro_f1": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "weighted_precision": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "weighted_recall": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "weighted_f1": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "per_class": {
+      "code_not_present": {
+        "precision": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "recall": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "f1": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "support": 1
+      },
+      "code_not_reachable": {
+        "precision": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "recall": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "f1": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "support": 1
+      },
+      "vulnerable": {
+        "precision": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "recall": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "f1": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "support": 1
+      }
+    },
+    "confusion_matrix": {
+      "labels": [
+        "false_positive",
+        "code_not_present",
+        "code_not_reachable",
+        "requires_configuration",
+        "requires_dependency",
+        "requires_environment",
+        "compiler_protected",
+        "runtime_protected",
+        "perimeter_protected",
+        "mitigating_control_protected",
+        "uncertain",
+        "vulnerable",
+        "failed"
+      ],
+      "matrix": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    "failed_total": 0
+  },
+  "completion": {
+    "completion_rate": {
+      "mean": 1.0,
+      "std": 0.0
+    },
+    "total": 3,
+    "answered": 3,
+    "status_counts": {
+      "ok": 3
+    }
+  },
+  "tokens": {
+    "per_case": {
+      "input_tokens": {
+        "mean": 15608.333333333334,
+        "std": 6549.7664334946585
+      },
+      "cached_input_tokens": {
+        "mean": 37290.666666666664,
+        "std": 36829.613591963374
+      },
+      "cache_write_tokens": {
+        "mean": 0,
+        "std": 0.0
+      },
+      "output_tokens": {
+        "mean": 1645.6666666666667,
+        "std": 289.710775314508
+      },
+      "reasoning_tokens": {
+        "mean": 65,
+        "std": 37.403208418530085
+      },
+      "total": {
+        "mean": 54609.666666666664,
+        "std": 43263.46794159402
+      }
+    },
+    "totals": {
+      "input_tokens": 46825,
+      "cached_input_tokens": 111872,
+      "cache_write_tokens": 0,
+      "output_tokens": 4937,
+      "reasoning_tokens": 195,
+      "total": 163829
+    },
+    "cases": 3
+  },
+  "cost": {
+    "per_case_usd": {
+      "mean": null,
+      "std": null
+    },
+    "total_cost_usd": 0,
+    "priced": 0,
+    "total": 3
+  },
+  "n_runs": 1,
+  "evidence": {
+    "total": 3,
+    "decision_counts": {
+      "needs_review": 3
+    },
+    "raw_uncertain_predictions": 3,
+    "citation_validity": {
+      "valid": 13,
+      "total": 13,
+      "rate": 1.0
+    },
+    "claim_status_counts": {
+      "requires_review": 5,
+      "verified_local_predicate": 6
+    }
+  },
+  "feedback": {
+    "total": 3,
+    "revision_attempted": 0,
+    "completed": 3,
+    "transition_counts": {},
+    "paired_raw_binary": {
+      "cases": 3,
+      "initial_correct": 2,
+      "final_correct": 2,
+      "category_changed": 0
+    }
+  }
+}
