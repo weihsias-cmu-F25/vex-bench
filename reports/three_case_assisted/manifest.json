@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "run_date": "2026-11-26",
+  "experiment_type": "independent_feedback_rounds_1",
+  "benchmark": "milestone_demo",
+  "agent": "opencode_host",
+  "model": "openai/gpt-6.2-sol",
+  "opencode_cli_version": "2.4.2",
+  "prompt_hash": "c048a5f709e8",
+  "raw_jsonl_stored_locally": true,
+  "cases": [
+    {
+      "task_id": "fastapi-fastapi-febf6b6-CVE-2024-47874",
+      "raw_jsonl_sha256": "a38938df32927ac1b7039430e766b004ec02d86c7bfffaa4f341e1731ffdb9e2",
+      "feedback_summary": {
+        "schema_version": 1,
+        "attempts": [
+          {
+            "index": 0,
+            "decision": "needs_review"
+          }
+        ],
+        "initial_decision": "needs_review",
+        "final_decision": "needs_review",
+        "revised": false
+      }
+    },
+    {
+      "task_id": "infiniflow-ragflow-c68767a-CVE-2024-36039",
+      "raw_jsonl_sha256": "5dfb6696dd1e12776beca3a2db4d005940b7eafd8a20a7a248833ce304cc2f97",
+      "feedback_summary": {
+        "schema_version": 1,
+        "attempts": [
+          {
+            "index": 0,
+            "decision": "needs_review"
+          }
+        ],
+        "initial_decision": "needs_review",
+        "final_decision": "needs_review",
+        "revised": false
+      }
+    },
+    {
+      "task_id": "kubernetes-minikube-e7bf515-CVE-2019-5736",
+      "raw_jsonl_sha256": "e5e109df64911574eae8a89324e35ef5338b99762387304bc69bf5cb20712a1d",
+      "feedback_summary": {
+        "schema_version": 1,
+        "attempts": [
+          {
+            "index": 0,
+            "decision": "needs_review"
+          }
+        ],
+        "initial_decision": "needs_review",
+        "final_decision": "needs_review",
+        "revised": false
+      }
+    }
+  ]
+}

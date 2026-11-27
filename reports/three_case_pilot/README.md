@@ -20,3 +20,7 @@ The verifier's valid citations establish only source integrity and narrow local
 facts; every case still needs semantic review. See
 [`OFFLINE_EVALUATION.md`](../../OFFLINE_EVALUATION.md) for interpretation and
 remaining work.
+
+[`AI_PRELIMINARY_REVIEW.md`](AI_PRELIMINARY_REVIEW.md) links the relevant
+maintainer advisories and records the unresolved security questions. It is not
+an independent human annotation.

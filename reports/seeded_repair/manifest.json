@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "seed_raw_sha256": "57a025dba7262ab06942175cd99a3dfd2fbe730349a3ffe33f0d3563263574d2",
+  "initial_decision": "invalid_input",
+  "initial_prompt_matches_repair_prompt": false,
+  "experiment_type": "seeded_repair_demonstration_not_controlled_comparison",
+  "task_id": "fastapi-fastapi-febf6b6-CVE-2024-47874",
+  "repair_prompt_hash": "c048a5f709e8",
+  "model": "openai/gpt-6.2-sol",
+  "opencode_cli_version": "2.4.2",
+  "attempts": [
+    {
+      "index": 0,
+      "decision": "invalid_input",
+      "raw_jsonl_sha256": "57a025dba7262ab06942175cd99a3dfd2fbe730349a3ffe33f0d3563263574d2",
+      "token_usage": {
+        "steps": 4,
+        "completed": true,
+        "input_tokens": 18752,
+        "cached_input_tokens": 3840,
+        "cache_write_tokens": 0,
+        "output_tokens": 1140,
+        "reasoning_tokens": 173
+      }
+    },
+    {
+      "index": 1,
+      "decision": "needs_review",
+      "raw_jsonl_sha256": "1a4af465f6551d1aba3f40e53edbb85f216ecacacdb84d4f0a0fef10eff8424e",
+      "token_usage": {
+        "steps": 10,
+        "completed": true,
+        "input_tokens": 20233,
+        "cached_input_tokens": 56832,
+        "cache_write_tokens": 0,
+        "output_tokens": 2512,
+        "reasoning_tokens": 47
+      }
+    }
+  ],
+  "feedback_summary": {
+    "schema_version": 1,
+    "attempts": [
+      {
+        "index": 0,
+        "decision": "invalid_input"
+      },
+      {
+        "index": 1,
+        "decision": "needs_review"
+      }
+    ],
+    "initial_decision": "invalid_input",
+    "final_decision": "needs_review",
+    "revised": true
+  },
+  "committed_initial_answer_redaction": "Temporary source directory paths replaced with <temporary-source>/; original raw JSONL hash retained."
+}

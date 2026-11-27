@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "task_id": "fastapi-fastapi-febf6b6-CVE-2024-47874",
+  "cve_id": "CVE-2024-47874",
+  "snapshot_sha": "febf6b6a52e36e0d64920fb54670ad7fc29b2eaa",
+  "proposed_category": "uncertain",
+  "reasoning": "The snapshot declares Starlette as a direct dependency (`starlette>=0.37.2,<0.41.0` in pyproject.toml:44), but no lockfile, exact pin, or vendored Starlette implementation was found. I could not independently retrieve GHSA-f96h-pmfr-66vw to verify its affected range. The prior advisory summary supplied with the task identifies 0.40.0 as the first patched release; if that summary is correct, the declared range permits both affected and patched releases.\n\nFirst-party routing code imports Starlette's Request and wires the request handler into APIRoute. For form-body routes, the handler calls `await request.form()` before it solves route dependencies (fastapi/routing.py:63,234-247,289-292,569-574). Multipart support is declared in the `all` extra, which requirements.txt selects. This establishes a conditional path from an incoming form request to Starlette's form handling, not that an affected parser is selected or exposed in this snapshot.",
+  "verifier_decision": "needs_review",
+  "obligations": [
+    {
+      "id": "advisory_scope",
+      "question": "Which advisory source identifies the affected component, versions, operation, and trigger?"
+    },
+    {
+      "id": "unresolved_precondition",
+      "question": "Which exact exploitability precondition remains unresolved?"
+    }
+  ],
+  "citations": [
+    {
+      "id": "c1",
+      "path": "pyproject.toml",
+      "start_line": 44,
+      "end_line": 44,
+      "quote": "    \"starlette>=0.37.2,<0.41.0\",",
+      "file_sha256": "004151a59d1fba50b00b3e31b97ce216e25a0db53ba7d0bc8bd8c9a0b56fee31",
+      "integrity_valid": true
+    },
+    {
+      "id": "c2",
+      "path": "fastapi/routing.py",
+      "start_line": 63,
+      "end_line": 63,
+      "quote": "from starlette.requests import Request",
+      "file_sha256": "58ad3a23065ec91c3191d078b8767b2578a7c6d54ec4cf0a7b4b6a1da0cebd80",
+      "integrity_valid": true
+    },
+    {
+      "id": "c3",
+      "path": "fastapi/routing.py",
+      "start_line": 234,
+      "end_line": 248,
+      "quote": "    is_body_form = body_field and isinstance(body_field.field_info, params.Form)\n    if isinstance(response_class, DefaultPlaceholder):\n        actual_response_class: Type[Response] = response_class.value\n    else:\n        actual_response_class = response_class\n\n    async def app(request: Request) -> Response:\n        response: Union[Response, None] = None\n        async with AsyncExitStack() as file_stack:\n            try:\n                body: Any = None\n                if body_field:\n                    if is_body_form:\n                        body = await request.form()\n                        file_stack.push_async_callback(body.close)",
+      "file_sha256": "58ad3a23065ec91c3191d078b8767b2578a7c6d54ec4cf0a7b4b6a1da0cebd80",
+      "integrity_valid": true
+    },
+    {
+      "id": "c4",
+      "path": "fastapi/routing.py",
+      "start_line": 289,
+      "end_line": 292,
+      "quote": "            errors: List[Any] = []\n            async with AsyncExitStack() as async_exit_stack:\n                solved_result = await solve_dependencies(\n                    request=request,",
+      "file_sha256": "58ad3a23065ec91c3191d078b8767b2578a7c6d54ec4cf0a7b4b6a1da0cebd80",
+      "integrity_valid": true
+    },
+    {
+      "id": "c5",
+      "path": "fastapi/routing.py",
+      "start_line": 569,
+      "end_line": 574,
+      "quote": "        self.app = request_response(self.get_route_handler())\n\n    def get_route_handler(self) -> Callable[[Request], Coroutine[Any, Any, Response]]:\n        return get_request_handler(\n            dependant=self.dependant,\n            body_field=self.body_field,",
+      "file_sha256": "58ad3a23065ec91c3191d078b8767b2578a7c6d54ec4cf0a7b4b6a1da0cebd80",
+      "integrity_valid": true
+    },
+    {
+      "id": "c6",
+      "path": "pyproject.toml",
+      "start_line": 77,
+      "end_line": 84,
+      "quote": "all = [\n    \"fastapi-cli[standard] >=0.0.5\",\n    # # For the test client\n    \"httpx >=0.23.0\",\n    # For templates\n    \"jinja2 >=2.11.2\",\n    # For forms and file uploads\n    \"python-multipart >=0.0.7\",",
+      "file_sha256": "004151a59d1fba50b00b3e31b97ce216e25a0db53ba7d0bc8bd8c9a0b56fee31",
+      "integrity_valid": true
+    },
+    {
+      "id": "c7",
+      "path": "requirements.txt",
+      "start_line": 1,
+      "end_line": 1,
+      "quote": "-e .[all]",
+      "file_sha256": "bc328694dac731201e2dab44a10690bc88cc64b9fef7ef01cb8c9abf7adffc35",
+      "integrity_valid": true
+    }
+  ],
+  "claims": [
+    {
+      "id": "version",
+      "statement": "The Starlette dependency range does not establish which version is selected.",
+      "predicate": {
+        "kind": "semantic",
+        "target": "pyproject.toml:44"
+      },
+      "citation_ids": [
+        "c1"
+      ],
+      "local_status": "requires_review"
+    },
+    {
+      "id": "request_import",
+      "statement": "The routing module imports Request from starlette.requests.",
+      "predicate": {
+        "kind": "python_import",
+        "target": "starlette.requests.Request"
+      },
+      "citation_ids": [
+        "c2"
+      ],
+      "local_status": "verified_local_predicate"
+    },
+    {
+      "id": "form_path",
+      "statement": "For a registered form-body route, the request handler delegates form parsing to Starlette before solving route dependencies; this does not establish the behavior of the resolved parser.",
+      "predicate": {
+        "kind": "semantic",
+        "target": "fastapi/routing.py:get_request_handler"
+      },
+      "citation_ids": [
+        "c2",
+        "c3",
+        "c4",
+        "c5"
+      ],
+      "local_status": "requires_review"
+    },
+    {
+      "id": "multipart_dependency",
+      "statement": "The requirements file selects the all extra, which declares python-multipart.",
+      "predicate": {
+        "kind": "semantic",
+        "target": "pyproject.toml:project.optional-dependencies.all"
+      },
+      "citation_ids": [
+        "c6",
+        "c7"
+      ],
+      "local_status": "requires_review"
+    }
+  ],
+  "review_scope": "A human must assess whether the reasoning and cited evidence support each obligation. External advisory URLs may be added in the annotation; this tool does not verify them.",
+  "packet_sha256": "5e8d42f66e717452a9ebe15ab01393338cad7e132179c788c9ce48d1ccc2119c"
+}

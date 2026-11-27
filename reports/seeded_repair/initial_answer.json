@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "task_id": "fastapi-fastapi-febf6b6-CVE-2024-47874",
+  "cve_id": "CVE-2024-47874",
+  "snapshot_sha": "febf6b6a52e36e0d64920fb54670ad7fc29b2eaa",
+  "category": "uncertain",
+  "reasoning": "GitHub advisory GHSA-f96h-pmfr-66vw identifies Starlette versions below 0.40.0 as affected by unbounded buffering of multipart text fields; 0.40.0 is the first patched version. <temporary-source>/pyproject.toml:43-47 declares starlette>=0.37.2,<0.41.0, which permits both affected versions and the patched 0.40.0. No lockfile, exact version pin, or vendored parser was found to resolve that ambiguity.\n\nThe request path is established: <temporary-source>/fastapi/routing.py:63 imports Starlette's Request, and lines 234-248 call await request.form() for form-body routes before dependency solving at line 291. <temporary-source>/docs_src/request_forms/tutorial001.py:6-8 defines such a POST route, and pyproject.toml:56-84 declares python-multipart in the standard and all extras. Thus an affected Starlette resolution can expose the parser, but the snapshot does not establish that an affected version was selected. Structured citations are omitted because the available tools could not compute SHA-256 hashes of the raw local files; source locations are given above.",
+  "citations": [],
+  "claims": [
+    {
+      "id": "version",
+      "statement": "The declared Starlette range allows both affected and patched versions and does not establish which is selected.",
+      "citation_ids": [],
+      "predicate": {
+        "kind": "semantic",
+        "target": "pyproject.toml:43-47"
+      }
+    },
+    {
+      "id": "reachability",
+      "statement": "Incoming HTTP requests to form-body routes can reach Starlette's multipart parser before FastAPI solves route dependencies.",
+      "citation_ids": [],
+      "predicate": {
+        "kind": "semantic",
+        "target": "fastapi/routing.py:get_request_handler"
+      }
+    }
+  ]
+}

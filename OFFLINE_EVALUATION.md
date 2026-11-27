@@ -1,7 +1,8 @@
 # Three-case evaluation status
 
 Evidence cutoff: November 26, 2026. This page separates authored verifier
-examples, one live agent baseline, and an offline feedback-policy replay.
+examples, two independent three-case model runs, an offline policy replay,
+and a saved-answer repair demonstration.
 
 ## Completed authored checks
 
@@ -53,12 +54,17 @@ are under `results/chatgpt_pilot/c048a5f709e8/opencode_host/gpt-6.2-sol/`.
 answers, reports, review packets, metrics, and raw-output hashes is committed
 for team review. Keep the local raw artifacts for a full audit.
 
-## Feedback-policy replay and quota limit
+A [post-hoc AI preliminary review](reports/three_case_pilot/AI_PRELIMINARY_REVIEW.md)
+checked the relevant maintainer and CERT advisories against these answers.
+It records the unresolved preconditions but is not independent human review
+and is not included in an evidence-support score.
 
-An attempted independent `--feedback-rounds 1` run received OpenCode's
+## Feedback-policy replay and independent run
+
+The first attempted independent `--feedback-rounds 1` run received OpenCode's
 `provider.chatgpt-limit` response (`subscription_sharing_usage_limit_exceeded`)
 before producing agent answers. Its error artifacts are preserved under the
-local `feedback_1_quota_failed/` directory. We did not retry the model.
+local `feedback_1_quota_failed/` directory. No failed output was scored.
 
 `scripts/replay_feedback.py` then reused the three saved baseline outputs as
 attempt 0, while making model calls impossible. The verifier policy requested
@@ -68,6 +74,34 @@ evidence decisions, and token counts. Its parsed rows and metrics are in
 `feedback_1/milestone_demo/`. This verifies the feedback decision for these
 answers. It is **not** an independent verifier-assisted agent comparison or
 evidence of an accuracy improvement.
+
+After the model quota recovered, a fresh independent `--feedback-rounds 1` run
+completed on all three cases with the same model, prompt, source snapshots,
+240-second timeout, and sequential settings. It produced new answers, not
+replayed baseline answers. All three were `uncertain`, all three verifier
+decisions were `needs_review`, and all 13/13 citations passed mechanical
+validation. No revision was requested. The exact-category accuracy was 0/3;
+the upstream binary score again gave 2/3 only because it maps `uncertain` to
+`not_exploitable`. Total recorded tokens were 47,551 input, 103,936 cached
+input, 5,009 output, and 361 reasoning, totaling 156,857. No USD cost could
+be calculated from the local pricing table. The
+[independent-run receipt](reports/three_case_assisted/README.md) contains its
+answers, verifier reports, review packets, metrics, and raw-output hashes.
+The two runs show no observed classification or mechanical-evidence gain on
+these three cases. With no repair triggered, they cannot measure the effect
+of verifier feedback on a failed answer.
+
+## Live repair of a saved invalid answer
+
+An earlier, real OpenCode FastAPI answer from a different prompt version had
+zero citations and was `invalid_input`. We reused that saved answer as attempt
+0 and sent the current prompt plus verifier feedback for one live repair.
+Attempt 1 supplied 7/7 mechanically valid citations and reached `needs_review`.
+The raw category stayed `uncertain`. This demonstrates that the feedback path
+can repair a schema/citation failure in one case; it does not show improved
+exploitability accuracy or a controlled before/after result. The
+[saved-answer repair receipt](reports/seeded_repair/README.md) preserves both
+answers, both reports, token usage, and the prompt-provenance limitation.
 
 ## Reproduce or extend
 
@@ -103,15 +137,21 @@ the destination is empty and each baseline answer requires no revision. Pass
 `--feedback-rounds 1` to parse and metrics to inspect it. The script rejects a
 case that would actually need another model call.
 
+For a fresh independent feedback run, use the run/parse/metrics commands above
+with `--feedback-rounds 1` on all three commands and a different `--output-dir`.
+`scripts/run_seeded_repair.py --help` describes the saved-answer engineering
+demonstration; its seed JSONL must be available locally.
+
 ## Remaining work
 
-1. Have independent reviewers judge the three generated review packets against
-   the advisories and source snapshots, then score their annotations using
+1. Have independent reviewers judge the generated review packets against the
+   advisories and source snapshots, then score their annotations using
    [the review protocol](SEMANTIC_REVIEW.md). This is the missing evidence-quality
-   measurement.
-2. After model quota resets, run an independent assisted experiment on cases
-   that actually trigger `invalid_input` or `unsupported`. The current three
-   answers do not trigger the repair prompt, so they cannot measure its effect.
+   measurement. An AI-produced note cannot substitute for this step.
+2. For a controlled repair-effect estimate, select more cases and obtain
+   initial `invalid_input` or `unsupported` answers under the same prompt and
+   settings used for repair. Neither independent three-case run triggered a
+   revision; the saved-answer demonstration changed prompt versions.
 3. Expand beyond three selected cases and compare the same model, task set,
    source access, and prompt settings before making general accuracy claims.
    Supplying vetted advisory context would also let the agent assess more than

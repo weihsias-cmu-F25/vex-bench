@@ -1,0 +1,18 @@
+{
+  "decision": "invalid_input",
+  "error": "3 validation errors for Explanation\ncitations\n  List should have at least 1 item after validation, not 0 [type=too_short, input_value=[], input_type=list]\n    For further information visit https://errors.pydantic.dev/2.12/v/too_short\nclaims.0.citation_ids\n  List should have at least 1 item after validation, not 0 [type=too_short, input_value=[], input_type=list]\n    For further information visit https://errors.pydantic.dev/2.12/v/too_short\nclaims.1.citation_ids\n  List should have at least 1 item after validation, not 0 [type=too_short, input_value=[], input_type=list]\n    For further information visit https://errors.pydantic.dev/2.12/v/too_short",
+  "feedback": {
+    "revision_requested": true,
+    "repairs": [
+      {
+        "code": "invalid_input",
+        "instruction": "Return one complete JSON explanation matching the required schema and task identifiers.",
+        "detail": "3 validation errors for Explanation\ncitations\n  List should have at least 1 item after validation, not 0 [type=too_short, input_value=[], input_type=list]\n    For further information visit https://errors.pydantic.dev/2.12/v/too_short\nclaims.0.citation_ids\n  List should have at least 1 item after validation, not 0 [type=too_short, input_value=[], input_type=list]\n    For further information visit https://errors.pydantic.dev/2.12/v/too_short\nclaims.1.citation_ids\n  List should have at least 1 item after validation, not 0 [type=too_short, input_value=[], input_type=list]\n    For further information visit https://errors.pydantic.dev/2.12/v/too_short"
+      }
+    ],
+    "human_review_required": true,
+    "review_claim_ids": [],
+    "review_questions": [],
+    "scope": "Citation and local predicate checks do not verify free-text reasoning or exploitability."
+  }
+}

@@ -168,7 +168,9 @@ for the full flag list shared by all three stages.
 For the authored demos, live three-case pilot, and remaining work, see
 [Three-case evaluation status](OFFLINE_EVALUATION.md). Selected answers,
 verifier reports, review packets, and metrics are committed in the
-[pilot receipt](reports/three_case_pilot/README.md).
+[baseline receipt](reports/three_case_pilot/README.md),
+[independent feedback-run receipt](reports/three_case_assisted/README.md), and
+[saved-answer repair demonstration](reports/seeded_repair/README.md).
 
 Use the same benchmark, agent, model, and `evidence_v1` prompt for all three
 stages. For the three selected cases, first download their pinned source trees:
@@ -366,5 +368,6 @@ review.
 See [the Chinese walkthrough](WALKTHROUGH.zh-TW.md) for setup and demo commands,
 and [the milestone report](MILESTONE_REPORT.md) for measured results and limitations.
 On this macOS setup, use `uv run --no-editable` to avoid hidden `.pth` import issues.
-The three-case live baseline is complete; a larger independent assisted
-comparison remains open.
+The three-case baseline and independent feedback run are complete. All six
+answers were `needs_review`, so a controlled estimate of repair effectiveness
+remains open.
