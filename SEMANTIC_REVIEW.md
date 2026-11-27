@@ -51,6 +51,23 @@ marks every evidence obligation supported. It is not an automated
 exploitability certificate. Use independent reviewers and resolve disagreements
 before reporting evidence-support rates.
 
+## Optional LLM judge
+
+The [six-case judge bundle](reports/llm_judge_bundle/README.md) provides one
+label-free packet, a readable brief, and an annotation template per live model
+answer. `python scripts/prepare_llm_judge_bundle.py` also creates a ZIP under
+`results/llm_judge_bundle.zip` for sharing with another AI. The ZIP excludes
+benchmark labels, metrics, reference PRs, previous review notes, and the local
+owner mapping. The judge needs access to the linked pinned source commits and
+public advisories; if it cannot establish a needed fact, it should mark that
+obligation `insufficient`.
+
+An LLM can fill the same annotation schema using a `reviewer_id` beginning
+`llm-judge/`. Keep its outputs separate from human annotations. The scorer
+checks their format but does not turn an AI judgment into independent human
+evidence. Report any such results as exploratory LLM-judge assessments and
+have a person review them before claiming expert-rated evidence quality.
+
 ## What reviewers must establish
 
 The `false_positive` category requires an authoritative vulnerability record

@@ -1,0 +1,7 @@
+請讀取這個 ZIP 裡的 README.md，然後依序、各自獨立審查 case_01 至 case_06。
+每個 case 都有 brief.md、packet.json 和 annotation.template.json。
+請使用 brief.md 提供的固定 commit 原始碼連結與公開漏洞公告查證；不要搜尋 benchmark 正解、參考修復 PR、成績或其他評審意見。
+針對 packet.json 中每個 obligation，填 supported、contradicted 或 insufficient，寫出具體理由與來源引用。
+不要把 integrity_valid 當成安全推論成立的證明；查不到必要資料時填 insufficient。
+請依每份 annotation.template.json 的格式產生 case_XX/annotation.json，保留 packet_sha256，reviewer_id 寫 llm-judge/你的模型/版本。
+若你無法寫檔，請依 case_01 到 case_06 的順序輸出六份完整 JSON，標清 case 編號。不要輸出 benchmark 漏洞標籤。

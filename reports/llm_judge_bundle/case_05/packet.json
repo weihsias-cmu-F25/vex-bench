@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "task_id": "infiniflow-ragflow-c68767a-CVE-2024-36039",
+  "cve_id": "CVE-2024-36039",
+  "snapshot_sha": "c68767acdde0bbe521fad7f202f01130d7aa4ce3",
+  "proposed_category": "uncertain",
+  "reasoning": "The snapshot pins PyMySQL 1.1.0 in requirements.txt:94, and Dockerfile.scratch:38 instructs pip to install that manifest. First-party code constructs a Peewee PooledMySQLDatabase and issues parameterized queries for database locks (api/db/db_models.py:275-276, 288-289). These facts establish a dependency declaration and a database call path, but not reachability of the CVE-specific behavior. Public advisory lookup was blocked, and no local advisory was found, so the affected versions and the conditions needed to reach the vulnerable behavior could not be verified.",
+  "verifier_decision": "needs_review",
+  "obligations": [
+    {
+      "id": "advisory_scope",
+      "question": "Which advisory source identifies the affected component, versions, operation, and trigger?"
+    },
+    {
+      "id": "unresolved_precondition",
+      "question": "Which exact exploitability precondition remains unresolved?"
+    }
+  ],
+  "citations": [
+    {
+      "id": "c1",
+      "path": "requirements.txt",
+      "start_line": 94,
+      "end_line": 94,
+      "quote": "PyMySQL==1.1.0",
+      "file_sha256": "60eecb041a321304e0649d55564fb66deac7f732e402d34e33183f52d20232cf",
+      "integrity_valid": true
+    },
+    {
+      "id": "c2",
+      "path": "Dockerfile.scratch",
+      "start_line": 38,
+      "end_line": 38,
+      "quote": "RUN conda run -n py11 pip install -i https://mirrors.aliyun.com/pypi/simple/ -r ./requirements.txt",
+      "file_sha256": "1055ad6514228cb1b0dfb831191c1923320dc697229e80205c1740c5aed460bd",
+      "integrity_valid": true
+    },
+    {
+      "id": "c3",
+      "path": "api/db/db_models.py",
+      "start_line": 275,
+      "end_line": 276,
+      "quote": "        self.database_connection = PooledMySQLDatabase(\n            db_name, **database_config)",
+      "file_sha256": "a5b52d93ac0b9e496473386452d80519033ac8c4ae8e729f0b37700a60ef220c",
+      "integrity_valid": true
+    },
+    {
+      "id": "c4",
+      "path": "api/db/db_models.py",
+      "start_line": 288,
+      "end_line": 289,
+      "quote": "        cursor = self.db.execute_sql(\n            \"SELECT GET_LOCK(%s, %s)\", (self.lock_name, self.timeout))",
+      "file_sha256": "a5b52d93ac0b9e496473386452d80519033ac8c4ae8e729f0b37700a60ef220c",
+      "integrity_valid": true
+    }
+  ],
+  "claims": [
+    {
+      "id": "cl1",
+      "statement": "The main Python requirements file pins PyMySQL to 1.1.0.",
+      "predicate": {
+        "kind": "text_contains",
+        "target": "PyMySQL==1.1.0"
+      },
+      "citation_ids": [
+        "c1"
+      ],
+      "local_status": "verified_local_predicate"
+    },
+    {
+      "id": "cl2",
+      "statement": "The scratch build runs pip install with requirements.txt.",
+      "predicate": {
+        "kind": "text_contains",
+        "target": "-r ./requirements.txt"
+      },
+      "citation_ids": [
+        "c2"
+      ],
+      "local_status": "verified_local_predicate"
+    },
+    {
+      "id": "cl3",
+      "statement": "First-party code calls PooledMySQLDatabase.",
+      "predicate": {
+        "kind": "python_call",
+        "target": "PooledMySQLDatabase"
+      },
+      "citation_ids": [
+        "c3"
+      ],
+      "local_status": "verified_local_predicate"
+    },
+    {
+      "id": "cl4",
+      "statement": "The database lock code calls self.db.execute_sql with a tuple of query parameters.",
+      "predicate": {
+        "kind": "python_call",
+        "target": "self.db.execute_sql"
+      },
+      "citation_ids": [
+        "c4"
+      ],
+      "local_status": "verified_local_predicate"
+    }
+  ],
+  "review_scope": "A human must assess whether the reasoning and cited evidence support each obligation. External advisory URLs may be added in the annotation; this tool does not verify them.",
+  "packet_sha256": "61ef4b72581f100e65675438fe22f6916ef4f08cc7ad45e1ad33caf1fccb3dcb"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "packet_sha256": "450cd6e44b11c3556b6de2b2d4a609093b3e46046b3bafa58d583cae06fea5ac",
+  "reviewer_id": "",
+  "judgments": [
+    {
+      "obligation_id": "advisory_scope",
+      "verdict": "insufficient",
+      "rationale": "",
+      "source_refs": []
+    },
+    {
+      "obligation_id": "unresolved_precondition",
+      "verdict": "insufficient",
+      "rationale": "",
+      "source_refs": []
+    }
+  ]
+}
