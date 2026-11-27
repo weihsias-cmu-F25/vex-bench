@@ -180,7 +180,8 @@ class EvidenceTests(unittest.TestCase):
 
     def test_upstream_parser_remains_compatible(self):
         self.assertEqual(parse_category(json.dumps(self.payload))[0], "uncertain")
-        self.assertEqual(to_binary("uncertain"), "not_exploitable")
+        self.assertIsNone(to_binary("uncertain"))
+        self.assertIsNone(to_binary("requires_dependency"))
         self.assertEqual(self.check_payload()["decision"], "needs_review")
 
     def test_cli_reports_failure_with_exit_one(self):

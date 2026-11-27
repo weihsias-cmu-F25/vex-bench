@@ -13,6 +13,8 @@ from evaluate.agents.opencode import OpenCodeAgent
 MODEL = "gpt-6.2-sol"
 POLICY = {
     "$schema": "https://opencode.ai/config.json",
+    # Headless runs cannot answer OpenCode's first-use provider selection prompt.
+    "websearch": {"provider": "exa"},
     "permissions": [
         {"action": action, "resource": "*", "effect": "deny"}
         for action in (
@@ -21,12 +23,14 @@ POLICY = {
             "edit",
             "execute",
             "subagent",
-            "websearch",
-            "webfetch",
             "question",
         )
     ]
-    + [{"action": "shell", "resource": "shasum -a 256 *", "effect": "allow"}],
+    + [
+        {"action": "shell", "resource": "shasum -a 256 *", "effect": "allow"},
+        {"action": "websearch", "resource": "*", "effect": "allow"},
+        {"action": "webfetch", "resource": "*", "effect": "allow"},
+    ],
 }
 
 

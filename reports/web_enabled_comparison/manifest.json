@@ -1,0 +1,81 @@
+{
+  "date": "2026-11-27",
+  "model": "openai/gpt-6.2-sol",
+  "opencode_version": "2.4.2",
+  "websearch_provider": "exa",
+  "timeout_seconds": 300,
+  "repeats": 1,
+  "parallel": 1,
+  "runs": {
+    "baseline": {
+      "prompt": "vuln",
+      "prompt_hash": "c0a5c8458b77",
+      "cases": [
+        {
+          "task_id": "fastapi-fastapi-febf6b6-CVE-2024-47874",
+          "ground_truth_category": "vulnerable",
+          "predicted_category": "uncertain",
+          "raw_jsonl_sha256": "4604d3d3da9aab78667b73aa68f9f02a98cdd52aa50983d830114fe99ad187df",
+          "web_tool_counts": {
+            "webfetch:completed": 1
+          }
+        },
+        {
+          "task_id": "infiniflow-ragflow-c68767a-CVE-2024-36039",
+          "ground_truth_category": "code_not_reachable",
+          "predicted_category": "vulnerable",
+          "raw_jsonl_sha256": "64cb78ba3a0c4c25f22d224c7f0e9394c18f0d4354a06b537fa63e1fde66183b",
+          "web_tool_counts": {
+            "webfetch:completed": 5,
+            "websearch:completed": 4,
+            "webfetch:error": 1
+          }
+        },
+        {
+          "task_id": "kubernetes-minikube-e7bf515-CVE-2019-5736",
+          "ground_truth_category": "code_not_present",
+          "predicted_category": "code_not_present",
+          "raw_jsonl_sha256": "de64c3b92e5f83dfa7e0c194349580b0ceadb54f5ab2c4766070320b180d5b6b",
+          "web_tool_counts": {
+            "webfetch:completed": 2
+          }
+        }
+      ]
+    },
+    "evidence": {
+      "prompt": "evidence_v1",
+      "prompt_hash": "c048a5f709e8",
+      "cases": [
+        {
+          "task_id": "fastapi-fastapi-febf6b6-CVE-2024-47874",
+          "ground_truth_category": "vulnerable",
+          "predicted_category": "uncertain",
+          "raw_jsonl_sha256": "45d2d2aac63c6d9727e035b7dc1c3007bc6c9af8dd312b05963268182acb0903",
+          "web_tool_counts": {
+            "webfetch:completed": 2
+          }
+        },
+        {
+          "task_id": "infiniflow-ragflow-c68767a-CVE-2024-36039",
+          "ground_truth_category": "code_not_reachable",
+          "predicted_category": "vulnerable",
+          "raw_jsonl_sha256": "1b815f395ff6e2c993ad79d5eb41588d915facb16b3d3e1aaf2601c702aabc55",
+          "web_tool_counts": {
+            "webfetch:completed": 7,
+            "websearch:completed": 3,
+            "webfetch:error": 1
+          }
+        },
+        {
+          "task_id": "kubernetes-minikube-e7bf515-CVE-2019-5736",
+          "ground_truth_category": "code_not_present",
+          "predicted_category": "uncertain",
+          "raw_jsonl_sha256": "8234f846f28546da6f8ab98b444fd3fcde4233ba50ad88c3fd545f664b1fd638",
+          "web_tool_counts": {
+            "webfetch:completed": 6
+          }
+        }
+      ]
+    }
+  }
+}

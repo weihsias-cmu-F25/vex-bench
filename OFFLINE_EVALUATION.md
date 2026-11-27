@@ -1,5 +1,15 @@
 # Three-case evaluation status
 
+**Correction (November 27, 2026):** This document preserves the first pilot's
+historical results. That pilot disabled advisory retrieval after OpenCode's
+first-use search-provider prompt failed in headless mode. Its all-`uncertain`
+outputs therefore do not test whether the evidence workflow improves
+exploitability classification. The old local scorer also incorrectly mapped
+`uncertain` and other out-of-benchmark categories to `not_exploitable`, giving
+a misleading 2/3 binary score. The scorer now treats predictions outside the
+paper's five annotated labels as failed. See [the web-enabled rerun](WEB_ENABLED_EVALUATION.md)
+for the corrected experiment and results.
+
 Evidence cutoff: November 27, 2026. This page separates authored verifier
 examples, two independent three-case model runs, an offline policy replay,
 and a saved-answer repair demonstration.

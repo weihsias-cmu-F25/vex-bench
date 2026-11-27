@@ -18,6 +18,15 @@ CATEGORY_ORDER: list[str] = [
     "vulnerable",
 ]
 VALID_CATEGORIES: frozenset[str] = frozenset(CATEGORY_ORDER)
+BENCHMARK_CATEGORIES: frozenset[str] = frozenset(
+    {
+        "vulnerable",
+        "code_not_present",
+        "code_not_reachable",
+        "requires_configuration",
+        "requires_environment",
+    }
+)
 BINARY_LABELS: list[str] = ["not_exploitable", "exploitable"]
 
 
@@ -81,14 +90,12 @@ def _extract_json_object(text: str) -> dict | None:
 
 
 def to_binary(category: str | None) -> str | None:
-    """Map a 12-category label to a binary exploitable / not_exploitable label."""
-    if category is None:
+    """Map the paper's five evaluated categories; others count as failed."""
+    if category not in BENCHMARK_CATEGORIES:
         return None
     if category == "vulnerable":
         return "exploitable"
-    if category in VALID_CATEGORIES:
-        return "not_exploitable"
-    return None
+    return "not_exploitable"
 
 
 def normalize_ground_truth(raw: str) -> str:

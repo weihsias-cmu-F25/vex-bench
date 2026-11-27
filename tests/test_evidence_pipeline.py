@@ -112,6 +112,20 @@ class EvidencePipelineTests(unittest.TestCase):
         self.assertEqual(scores["evidence"]["decision_counts"], {"needs_review": 1})
         self.assertEqual(scores["evidence"]["citation_validity"]["rate"], 1.0)
 
+    def test_uncertain_is_abstention_not_a_correct_negative(self):
+        self.payload["category"] = "uncertain"
+        self.result_path().write_text(self.export(json.dumps(self.payload)))
+        row = _parse_run(self.agent, self.task, self.config, 1)
+        self.assertEqual(row["predicted_category"], "uncertain")
+        self.assertIsNone(row["predicted"])
+        self.assertEqual(row["evidence_citations_valid"], 1)
+        scores = compute_metrics([row])
+        self.assertEqual(scores["binary"]["accuracy"]["mean"], 0.0)
+        self.assertEqual(scores["binary"]["totals"]["failed"], 1)
+        self.assertEqual(scores["multiclass"]["failed_total"], 1)
+        self.assertEqual(scores["completion"]["parseable"], 1)
+        self.assertEqual(scores["completion"]["outside_labels"], 1)
+
     def test_parse_and_metrics_write_end_to_end_artifacts(self):
         self.result_path().write_text(self.export(json.dumps(self.payload)))
         task_file = self.root / "tasks.jsonl"

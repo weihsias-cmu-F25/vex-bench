@@ -34,7 +34,7 @@ class OpenCodeHostTests(unittest.TestCase):
         (self.source / "fact.txt").write_text("cedar\n")
         (self.source / "escape").symlink_to(database)
 
-    def test_run_uses_disposable_copy_and_denies_external_tools(self):
+    def test_run_uses_disposable_copy_and_configures_web_tools(self):
         agent = OpenCodeHostAgent("gpt-6.2-sol")
         with patch.dict(os.environ, {"VEX_OPENCODE_HOME": str(self.home)}):
             result = agent.run("test", RunContext(cwd=self.source, language="python"))
@@ -44,6 +44,7 @@ class OpenCodeHostTests(unittest.TestCase):
         self.assertEqual((fact, escape), ("cedar", "False"))
         self.assertFalse(Path(cwd).exists())
         policy = json.loads((self.home / "config/opencode/opencode.json").read_text())
+        self.assertEqual(policy["websearch"], {"provider": "exa"})
         self.assertEqual(
             {rule["action"] for rule in policy["permissions"]},
             {
@@ -59,7 +60,11 @@ class OpenCodeHostTests(unittest.TestCase):
         )
         self.assertEqual(
             [rule for rule in policy["permissions"] if rule["effect"] == "allow"],
-            [{"action": "shell", "resource": "shasum -a 256 *", "effect": "allow"}],
+            [
+                {"action": "shell", "resource": "shasum -a 256 *", "effect": "allow"},
+                {"action": "websearch", "resource": "*", "effect": "allow"},
+                {"action": "webfetch", "resource": "*", "effect": "allow"},
+            ],
         )
 
     def test_unexpected_policy_is_rejected(self):

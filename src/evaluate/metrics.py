@@ -11,7 +11,7 @@ from sklearn.metrics import (
 )
 
 from evaluate.common import ExperimentConfig, add_experiment_args, config_from_args
-from evaluate.result_parser import BINARY_LABELS, CATEGORY_ORDER
+from evaluate.result_parser import BENCHMARK_CATEGORIES, BINARY_LABELS, CATEGORY_ORDER
 
 logger = logging.getLogger(__name__)
 
@@ -192,7 +192,7 @@ def _multiclass_one_run(rows: list[dict]) -> dict:
         return _empty_multi_one_run()
 
     y_true = [gt for gt, _ in pairs]
-    y_pred = [pred if pred is not None else FAILED for _, pred in pairs]
+    y_pred = [pred if pred in BENCHMARK_CATEGORIES else FAILED for _, pred in pairs]
     gt_labels = _sorted_categories(set(y_true))
     failed = sum(1 for p in y_pred if p == FAILED)
 
@@ -229,13 +229,17 @@ def _multiclass_one_run(rows: list[dict]) -> dict:
 
 
 def _completion_one_run(rows: list[dict]) -> dict:
-    """How often the agent produced a parseable answer in one run."""
+    """Report parsed outputs separately from benchmark-evaluable answers."""
     total = len(rows)
     answered = sum(1 for r in rows if r.get("predicted") is not None)
+    parseable = sum(1 for r in rows if r.get("predicted_category") is not None)
+    outside_labels = parseable - answered
     status_counts = Counter(r.get("status", "unknown") for r in rows)
     return {
         "total": total,
         "answered": answered,
+        "parseable": parseable,
+        "outside_labels": outside_labels,
         "completion_rate": answered / total if total else None,
         "status_counts": dict(status_counts),
     }
@@ -297,6 +301,8 @@ def _agg_completion(per_run: list[dict]) -> dict:
         "completion_rate": _agg_scalars(m["completion_rate"] for m in per_run),
         "total": sum(m["total"] for m in per_run),
         "answered": sum(m["answered"] for m in per_run),
+        "parseable": sum(m["parseable"] for m in per_run),
+        "outside_labels": sum(m["outside_labels"] for m in per_run),
         "status_counts": {
             s: sum(m["status_counts"].get(s, 0) for m in per_run) for s in sorted(statuses)
         },
@@ -429,6 +435,8 @@ def _empty_completion_agg() -> dict:
         "completion_rate": {"mean": None, "std": None},
         "total": 0,
         "answered": 0,
+        "parseable": 0,
+        "outside_labels": 0,
         "status_counts": {},
     }
 
@@ -463,10 +471,12 @@ def _print_report(out: dict) -> None:
 
     logger.info("\n=== Completion ===")
     logger.info(
-        "  completion_rate %s  (answered %d / %d)",
+        "  completion_rate %s  (evaluable %d / %d; parseable %d; outside labels %d)",
         _fmt_mean_std(comp["completion_rate"]),
         comp["answered"],
         comp["total"],
+        comp["parseable"],
+        comp["outside_labels"],
     )
     if comp["status_counts"]:
         logger.info(
