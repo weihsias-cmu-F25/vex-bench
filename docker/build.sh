@@ -17,19 +17,28 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 LANGS=(go python java)
 AGENTS=(codex opencode claude)
 
+if command -v docker >/dev/null 2>&1; then
+    DOCKER_CMD=(docker)
+elif [[ -x /Applications/Docker.app/Contents/Resources/bin/docker ]]; then
+    DOCKER_CMD=(/Applications/Docker.app/Contents/Resources/bin/docker --context desktop-linux)
+else
+    echo "Docker CLI not found" >&2
+    exit 1
+fi
+
 want_lang="${1:-}"
 want_agent="${2:-}"
 
 build_base() {
     local lang="$1"
     echo ">>> building vex-bench-${lang}"
-    docker build -t "vex-bench-${lang}:latest" -f "${HERE}/base.${lang}.Dockerfile" "${HERE}"
+    "${DOCKER_CMD[@]}" build -t "vex-bench-${lang}:latest" -f "${HERE}/base.${lang}.Dockerfile" "${HERE}"
 }
 
 build_agent() {
     local lang="$1" agent="$2"
     echo ">>> building vex-bench-${lang}-${agent}"
-    docker build -t "vex-bench-${lang}-${agent}:latest" \
+    "${DOCKER_CMD[@]}" build -t "vex-bench-${lang}-${agent}:latest" \
         -f "${HERE}/${lang}.${agent}.Dockerfile" "${HERE}"
 }
 

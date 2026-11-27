@@ -7,6 +7,18 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
+DOCKER_DESKTOP_CLI = Path("/Applications/Docker.app/Contents/Resources/bin/docker")
+
+
+def docker_command() -> list[str]:
+    """Use Docker on PATH, or the bundled macOS Docker Desktop CLI."""
+    installed = shutil.which("docker")
+    if installed:
+        return [installed]
+    if DOCKER_DESKTOP_CLI.is_file():
+        return [str(DOCKER_DESKTOP_CLI), "--context", "desktop-linux"]
+    return ["docker"]
+
 
 @dataclass(frozen=True)
 class RunContext:
@@ -47,7 +59,8 @@ def run_in_container(
     file). Raises RuntimeError on any docker failure, a non-zero exit, or
     timeout.
     """
-    create_cmd = ["docker", "create", "--workdir", workdir]
+    docker = docker_command()
+    create_cmd = [*docker, "create", "--workdir", workdir]
     if env_file is not None:
         create_cmd += ["--env-file", str(env_file)]
     for host_path, container_path in mounts:
@@ -63,7 +76,7 @@ def run_in_container(
     try:
         try:
             subprocess.run(
-                ["docker", "cp", f"{src.resolve()}/.", f"{cid}:{workdir}"],
+                [*docker, "cp", f"{src.resolve()}/.", f"{cid}:{workdir}"],
                 capture_output=True,
                 text=True,
                 check=True,
@@ -73,7 +86,7 @@ def run_in_container(
 
         try:
             started = subprocess.run(
-                ["docker", "start", "-a", cid],
+                [*docker, "start", "-a", cid],
                 capture_output=True,
                 text=True,
                 timeout=timeout,
@@ -92,12 +105,12 @@ def run_in_container(
         return started.stdout
     finally:
         if artifacts_dir is not None:
-            _copy_container_artifacts(cid, artifacts_dir, artifact_paths)
-        subprocess.run(["docker", "rm", "-f", cid], capture_output=True, check=False)
+            _copy_container_artifacts(cid, artifacts_dir, artifact_paths, docker)
+        subprocess.run([*docker, "rm", "-f", cid], capture_output=True, check=False)
 
 
 def _copy_container_artifacts(
-    cid: str, artifacts_dir: Path, artifact_paths: Sequence[tuple[str, str]]
+    cid: str, artifacts_dir: Path, artifact_paths: Sequence[tuple[str, str]], docker: list[str]
 ) -> None:
     if not artifact_paths:
         return
@@ -111,7 +124,7 @@ def _copy_container_artifacts(
             else:
                 dest.unlink()
         subprocess.run(
-            ["docker", "cp", f"{cid}:{container_path}", str(dest)],
+            [*docker, "cp", f"{cid}:{container_path}", str(dest)],
             capture_output=True,
             check=False,
         )

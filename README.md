@@ -165,6 +165,9 @@ for the full flag list shared by all three stages.
 
 ### Evidence-enabled experiment
 
+For the current three-case offline results and live-run blockers, see
+[Three-case evaluation status](OFFLINE_EVALUATION.md).
+
 Use the same benchmark, agent, model, and `evidence_v1` prompt for all three
 stages. For the three selected cases, first download their pinned source trees:
 

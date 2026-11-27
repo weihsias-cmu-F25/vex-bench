@@ -6,7 +6,14 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from evaluate.agents.base import Agent, AgentResult, ParsedResult, RunContext, RunStats
+from evaluate.agents.base import (
+    Agent,
+    AgentResult,
+    ParsedResult,
+    RunContext,
+    RunStats,
+    docker_command,
+)
 from evaluate.result_parser import parse_category
 
 logger = logging.getLogger(__name__)
@@ -156,7 +163,7 @@ def _run_opencode_and_export(
 
 def _create_container(image: str, *, env_file: Path, config_file: Path, script: str) -> str:
     cmd = [
-        "docker",
+        *docker_command(),
         "create",
         "--workdir",
         "/work",
@@ -186,7 +193,7 @@ def _copy_inputs(cid: str, *, src: Path, prompt_path: Path) -> None:
 def _start_container(cid: str, *, timeout: int) -> None:
     try:
         started = subprocess.run(
-            ["docker", "start", "-a", cid],
+            [*docker_command(), "start", "-a", cid],
             capture_output=True,
             text=True,
             timeout=timeout + 120,
@@ -215,7 +222,7 @@ def _copy_export(cid: str, tmpdir: Path) -> str:
 
 
 def _remove_container(cid: str) -> None:
-    subprocess.run(["docker", "rm", "-f", cid], capture_output=True, check=False)
+    subprocess.run([*docker_command(), "rm", "-f", cid], capture_output=True, check=False)
 
 
 def _build_export_script(*, model: str, timeout: int) -> str:
@@ -358,7 +365,7 @@ def _copy_debug_artifacts(cid: str, artifacts_dir: Path) -> None:
 
 
 def _docker_cp_required(src: str, dst: str, message: str) -> None:
-    result = subprocess.run(["docker", "cp", src, dst], capture_output=True, text=True)
+    result = subprocess.run([*docker_command(), "cp", src, dst], capture_output=True, text=True)
     if result.returncode != 0:
         detail = result.stderr.strip() or result.stdout.strip() or "(no output)"
         raise RuntimeError(f"{message}: {detail}")
@@ -370,7 +377,7 @@ def _docker_cp_optional(src: str, dst: Path) -> None:
             shutil.rmtree(dst)
         else:
             dst.unlink()
-    subprocess.run(["docker", "cp", src, str(dst)], capture_output=True, check=False)
+    subprocess.run([*docker_command(), "cp", src, str(dst)], capture_output=True, check=False)
 
 
 def _captured_io(stdout: str | bytes | None, stderr: str | bytes | None) -> str:
