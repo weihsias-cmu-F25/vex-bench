@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "task_id": "kubernetes-minikube-e7bf515-CVE-2019-5736",
+  "packet_sha256": "58e2ffdeb8f41f375f30f9d0f9125afbe0a07533422c530e8a26e52e9d2114d1",
+  "reviewer_id": "llm-judge/gemini/2.5",
+  "evidence_support": "insufficient",
+  "judgment_counts": {
+    "insufficient": 2
+  },
+  "annotation_validated": true,
+  "automated_exploitability_verified": false
+}

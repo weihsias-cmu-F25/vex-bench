@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "packet_sha256": "18dc30d18423f8e31d8cf508b1a6ecc7956cc7b742d32bd10052cb5d61e97559",
+  "reviewer_id": "llm-judge/gemini/2.5",
+  "judgments": [
+    {
+      "obligation_id": "advisory_scope",
+      "verdict": "insufficient",
+      "rationale": "The model explicitly states that external advisory lookup was blocked and therefore did not establish the affected component, version range, operation, or trigger for CVE-2024-47874. In addition, the external advisory URL (GHSA-f96h-pmfr-66vw) cannot be accessed in this review environment to independently verify the advisory scope.",
+      "source_refs": [
+        "https://github.com/Kludex/starlette/security/advisories/GHSA-f96h-pmfr-66vw"
+      ]
+    },
+    {
+      "obligation_id": "unresolved_precondition",
+      "verdict": "insufficient",
+      "rationale": "The cited source lines show that pyproject.toml declares a Starlette version range (>=0.37.2,<0.41.0) rather than an exact version (c1) and that FastAPI routes with form bodies call await request.form() on Starlette's Request (c2, c3, c4). However, because the model did not verify the advisory's affected versions and prerequisites—and the advisory cannot be accessed here—it remains unestablished whether the exact unresolved exploitability precondition is version resolution within that range or another advisory-specific condition.",
+      "source_refs": [
+        "c1",
+        "c2",
+        "c3",
+        "c4"
+      ]
+    }
+  ]
+}

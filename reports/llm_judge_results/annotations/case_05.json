@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "packet_sha256": "61ef4b72581f100e65675438fe22f6916ef4f08cc7ad45e1ad33caf1fccb3dcb",
+  "reviewer_id": "llm-judge/gemini/2.5",
+  "judgments": [
+    {
+      "obligation_id": "advisory_scope",
+      "verdict": "insufficient",
+      "rationale": "The model states that public advisory lookup was blocked and no local advisory was found. It did not establish from GHSA-v9hf-5j83-6xpp that CVE-2024-36039 affects PyMySQL through 1.1.0 (fixed in 1.1.1) and allows SQL injection when untrusted JSON/dict input is passed to escape_dict because keys are not escaped.",
+      "source_refs": [
+        "https://github.com/advisories/GHSA-v9hf-5j83-6xpp"
+      ]
+    },
+    {
+      "obligation_id": "unresolved_precondition",
+      "verdict": "insufficient",
+      "rationale": "The cited lines establish that PyMySQL==1.1.0 is pinned and installed (c1, c2) and that PooledMySQLDatabase and a tuple-parameterized execute_sql call are used (c3, c4). Because the model did not identify the CVE-specific trigger (untrusted JSON/dict keys reaching PyMySQL's escape_dict), it did not establish the exact unresolved exploitability precondition.",
+      "source_refs": [
+        "c1",
+        "c2",
+        "c3",
+        "c4",
+        "https://github.com/advisories/GHSA-v9hf-5j83-6xpp"
+      ]
+    }
+  ]
+}

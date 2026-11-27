@@ -1,6 +1,6 @@
 # Three-case evaluation status
 
-Evidence cutoff: November 26, 2026. This page separates authored verifier
+Evidence cutoff: November 27, 2026. This page separates authored verifier
 examples, two independent three-case model runs, an offline policy replay,
 and a saved-answer repair demonstration.
 
@@ -103,6 +103,16 @@ runs inside Docker; our host pilot denied web tools and used a different model
 and a stricter evidence prompt. Its all-`uncertain` behavior may reflect the
 missing advisory access, but this experiment does not isolate that cause.
 
+## External LLM-judge review
+
+A separate Gemini 2.5 judge returned annotations for the six live answers.
+All six passed the review scorer's format and packet-hash checks. The judge
+marked all six overall `insufficient`: advisory scope was insufficient in
+6/6, and the exact unresolved precondition was supported in only 1/6. See the
+[annotation receipt](reports/llm_judge_results/README.md) for the per-case
+judgments and source-access caveats. This is an exploratory AI assessment,
+not human-reviewed evidence quality or a measure of exploitability accuracy.
+
 ## Live repair of a saved invalid answer
 
 An earlier, real OpenCode FastAPI answer from a different prompt version had
@@ -156,8 +166,9 @@ demonstration; its seed JSONL must be available locally.
 
 ## Remaining work
 
-1. Have independent reviewers judge the generated review packets against the
-   advisories and source snapshots, then score their annotations using
+1. Have independent human reviewers adjudicate the six packets and the AI
+   annotations against the advisories and source snapshots, then score their
+   own annotations using
    [the review protocol](SEMANTIC_REVIEW.md). This is the missing evidence-quality
    measurement. An AI-produced note cannot substitute for this step.
 2. For a controlled repair-effect estimate, select more cases and obtain

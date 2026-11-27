@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "packet_sha256": "7b39e936dc1296346cb0af17619191ef426f5c11474c6e913287b22d409c7efe",
+  "reviewer_id": "llm-judge/gemini/2.5",
+  "judgments": [
+    {
+      "obligation_id": "advisory_scope",
+      "verdict": "insufficient",
+      "rationale": "The model explicitly states that external advisory retrieval was blocked and no local advisory was found. It therefore did not establish from GHSA-f96h-pmfr-66vw that CVE-2024-47874 affects Starlette < 0.40.0 via unbounded buffering of multipart/form-data parts without a filename.",
+      "source_refs": [
+        "https://github.com/advisories/GHSA-f96h-pmfr-66vw"
+      ]
+    },
+    {
+      "obligation_id": "unresolved_precondition",
+      "verdict": "supported",
+      "rationale": "Independent verification against GHSA-f96h-pmfr-66vw confirms CVE-2024-47874 affects Starlette < 0.40.0 (fixed in 0.40.0) on form requests. The cited code shows pyproject.toml:44 declares a range spanning both vulnerable and patched versions (starlette>=0.37.2,<0.41.0, c1) with no lockfile, while fastapi/routing.py imports Request (c2) and awaits request.form() (c3), directly supporting that the unresolved Starlette version resolution is the exact exploitability precondition.",
+      "source_refs": [
+        "c1",
+        "c2",
+        "c3",
+        "https://github.com/advisories/GHSA-f96h-pmfr-66vw"
+      ]
+    }
+  ]
+}

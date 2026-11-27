@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "received_date": "2026-11-27",
+  "source_zip_sha256": "491d8cd6e25540c11f9190ee070ff4f42fc97efdec30987d29e5eeb31415269c",
+  "annotation_count": 6,
+  "reviewer_ids": [
+    "llm-judge/gemini/2.5"
+  ],
+  "overall_counts": {
+    "insufficient": 6
+  },
+  "obligation_counts": {
+    "advisory_scope": {
+      "insufficient": 6
+    },
+    "unresolved_precondition": {
+      "insufficient": 5,
+      "supported": 1
+    }
+  },
+  "cases": [
+    {
+      "case": "case_01",
+      "source_run": "three_case_pilot",
+      "task_id": "fastapi-fastapi-febf6b6-CVE-2024-47874",
+      "reviewer_id": "llm-judge/gemini/2.5",
+      "evidence_support": "insufficient",
+      "judgments": {
+        "advisory_scope": "insufficient",
+        "unresolved_precondition": "insufficient"
+      }
+    },
+    {
+      "case": "case_02",
+      "source_run": "three_case_assisted",
+      "task_id": "infiniflow-ragflow-c68767a-CVE-2024-36039",
+      "reviewer_id": "llm-judge/gemini/2.5",
+      "evidence_support": "insufficient",
+      "judgments": {
+        "advisory_scope": "insufficient",
+        "unresolved_precondition": "insufficient"
+      }
+    },
+    {
+      "case": "case_03",
+      "source_run": "three_case_pilot",
+      "task_id": "kubernetes-minikube-e7bf515-CVE-2019-5736",
+      "reviewer_id": "llm-judge/gemini/2.5",
+      "evidence_support": "insufficient",
+      "judgments": {
+        "advisory_scope": "insufficient",
+        "unresolved_precondition": "insufficient"
+      }
+    },
+    {
+      "case": "case_04",
+      "source_run": "three_case_assisted",
+      "task_id": "fastapi-fastapi-febf6b6-CVE-2024-47874",
+      "reviewer_id": "llm-judge/gemini/2.5",
+      "evidence_support": "insufficient",
+      "judgments": {
+        "advisory_scope": "insufficient",
+        "unresolved_precondition": "supported"
+      }
+    },
+    {
+      "case": "case_05",
+      "source_run": "three_case_pilot",
+      "task_id": "infiniflow-ragflow-c68767a-CVE-2024-36039",
+      "reviewer_id": "llm-judge/gemini/2.5",
+      "evidence_support": "insufficient",
+      "judgments": {
+        "advisory_scope": "insufficient",
+        "unresolved_precondition": "insufficient"
+      }
+    },
+    {
+      "case": "case_06",
+      "source_run": "three_case_assisted",
+      "task_id": "kubernetes-minikube-e7bf515-CVE-2019-5736",
+      "reviewer_id": "llm-judge/gemini/2.5",
+      "evidence_support": "insufficient",
+      "judgments": {
+        "advisory_scope": "insufficient",
+        "unresolved_precondition": "insufficient"
+      }
+    }
+  ],
+  "interpretation": "LLM-judge format-validated results; not independent human review or exploitability ground truth."
+}

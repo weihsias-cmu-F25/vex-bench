@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "task_id": "fastapi-fastapi-febf6b6-CVE-2024-47874",
+  "packet_sha256": "18dc30d18423f8e31d8cf508b1a6ecc7956cc7b742d32bd10052cb5d61e97559",
+  "reviewer_id": "llm-judge/gemini/2.5",
+  "evidence_support": "insufficient",
+  "judgment_counts": {
+    "insufficient": 2
+  },
+  "annotation_validated": true,
+  "automated_exploitability_verified": false
+}
