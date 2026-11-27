@@ -9,6 +9,7 @@ from evaluate.common import (
     load_tasks,
     make_agent,
 )
+from evidence.pipeline import parse_explanation
 from utils.repo import parse_owner_repo
 
 logger = logging.getLogger(__name__)
@@ -34,12 +35,18 @@ def _run_one(task: dict, rep: int, *, config: ExperimentConfig, agent: Agent) ->
     run_dir_per_rep = config.run_dir / task_id / run_id
     error_path = run_dir_per_rep / "error.txt"
     cached = agent.load_result(run_dir_per_rep)
-    if cached is not None:
+    evidence_cache_ok = True
+    if cached is not None and config.prompt == "evidence_v1":
+        try:
+            parse_explanation(cached.text, task)
+        except ValueError:
+            evidence_cache_ok = False
+    if cached is not None and evidence_cache_ok:
         error_path.unlink(missing_ok=True)
         logger.info("%s [CACHE] %s", tag, cached.path)
         return
     if agent.has_result(run_dir_per_rep):
-        logger.info("%s [RE-RUN] cached result unparseable: %s", tag, run_dir_per_rep)
+        logger.info("%s [RE-RUN] cached result incomplete or unparseable: %s", tag, run_dir_per_rep)
 
     run_dir_per_rep.mkdir(parents=True, exist_ok=True)
     prompt = (

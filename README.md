@@ -163,6 +163,39 @@ uv run vex-bench evaluate metrics \
 resumed with the same command. See the [CLI reference](#cli-reference) below
 for the full flag list shared by all three stages.
 
+### Evidence-enabled experiment
+
+Use the same benchmark, agent, model, and `evidence_v1` prompt for all three
+stages. For the three selected cases, first download their pinned source trees:
+
+```bash
+uv run vex-bench download benchmark/tasks/milestone_demo.jsonl
+uv run vex-bench evaluate run --benchmark milestone_demo --agent opencode \
+  --model <configured-model> --prompt evidence_v1 --repeats 1 --parallel 1
+uv run vex-bench evaluate parse --benchmark milestone_demo --agent opencode \
+  --model <configured-model> --prompt evidence_v1 --repeats 1
+uv run vex-bench evaluate metrics --benchmark milestone_demo --agent opencode \
+  --model <configured-model> --prompt evidence_v1 --repeats 1
+```
+
+The parse stage checks the agent's final structured answer against its task ID,
+CVE, and snapshot SHA, then runs the evidence verifier against the pinned source
+tree. It writes `evidence_report.json` beside each raw result and adds evidence
+fields to `parsed.jsonl`. `metrics.json` has a separate `evidence` section with
+decision counts, citation validity, local claim status counts, and the count of
+raw `uncertain` predictions. A missing source tree is reported as
+`source_unavailable`, separate from malformed agent evidence (`invalid_input`)
+and an unsupported citation (`unsupported`). A
+parseable category is still scored as the agent's **raw prediction**; evidence
+results do not certify its exploitability conclusion. In particular,
+`needs_review` is an abstention from verification, not a safety verdict.
+
+For `evidence_v1`, the run cache accepts only a complete structured answer
+whose task ID, CVE, and snapshot SHA match the task. A category-only answer is
+rerun if the run stage is invoked again. The upstream category mapping still
+maps `uncertain` to `not_exploitable`; report that category separately when
+comparing classification results, rather than treating it as verified safety.
+
 ## CLI reference
 
 ```text
@@ -242,10 +275,12 @@ vex-bench/
 │   └── tasks/          Benchmark task definitions and labels
 ├── docker/             Language base images and agent-specific images
 ├── env/                Credential/configuration templates (secrets are ignored)
+├── examples/evidence/  Structured evidence examples and JSON Schema
 └── src/
     ├── builder/        Pinned-repository downloader
     ├── evaluate/       Run, parse, and metrics pipeline
     │   └── agents/     Codex, Claude Code, and OpenCode adapters
+    ├── evidence/       Citation and local predicate verification
     └── utils/          Shared helpers (repo checkout, shell exec)
 ```
 

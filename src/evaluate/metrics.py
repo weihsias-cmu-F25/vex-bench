@@ -42,13 +42,40 @@ def compute_metrics(rows: list[dict]) -> dict:
     binary_per_run = [_binary_one_run(rs) for rs in by_run.values()]
     multi_per_run = [_multiclass_one_run(rs) for rs in by_run.values()]
     completion_per_run = [_completion_one_run(rs) for rs in by_run.values()]
-    return {
+    out = {
         "binary": _agg_binary(binary_per_run),
         "multiclass": _agg_multiclass(multi_per_run),
         "completion": _agg_completion(completion_per_run),
         "tokens": _agg_tokens(rows),
         "cost": _agg_cost(rows),
         "n_runs": len(by_run),
+    }
+    if any("evidence_decision" in row for row in rows):
+        out["evidence"] = _agg_evidence(rows)
+    return out
+
+
+def _agg_evidence(rows: list[dict]) -> dict:
+    """Evidence checks are separate from raw category classification scores."""
+    evidence_rows = [row for row in rows if "evidence_decision" in row]
+    decisions = Counter(row["evidence_decision"] for row in evidence_rows)
+    citations_valid = sum(row.get("evidence_citations_valid", 0) for row in evidence_rows)
+    citations_total = sum(row.get("evidence_citations_total", 0) for row in evidence_rows)
+    claims = Counter(
+        status for row in evidence_rows for status in row.get("evidence_claim_statuses", [])
+    )
+    return {
+        "total": len(evidence_rows),
+        "decision_counts": dict(decisions),
+        "raw_uncertain_predictions": sum(
+            row.get("predicted_category") == "uncertain" for row in evidence_rows
+        ),
+        "citation_validity": {
+            "valid": citations_valid,
+            "total": citations_total,
+            "rate": citations_valid / citations_total if citations_total else None,
+        },
+        "claim_status_counts": dict(claims),
     }
 
 
@@ -414,6 +441,15 @@ def _print_report(out: dict) -> None:
             "  status     %s",
             "  ".join(f"{s}={n}" for s, n in comp["status_counts"].items()),
         )
+
+    if "evidence" in out:
+        evidence = out["evidence"]
+        logger.info("\n=== Evidence (separate from classification) ===")
+        logger.info("  decisions  %s", evidence["decision_counts"])
+        logger.info("  uncertain  %d raw predictions", evidence["raw_uncertain_predictions"])
+        citations = evidence["citation_validity"]
+        logger.info("  citations  %d / %d valid", citations["valid"], citations["total"])
+        logger.info("  claims     %s", evidence["claim_status_counts"])
 
     logger.info("\n=== Tokens (per case, %d cases) ===", tokens["cases"])
     tot = tokens["totals"]
