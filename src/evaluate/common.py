@@ -4,7 +4,7 @@ import json
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 
 from evaluate.agents import AGENTS, Agent
 from evaluate.prompts import PROMPTS
@@ -31,6 +31,7 @@ class ExperimentConfig(BaseModel):
     repeats: int = 1
     timeout: int = 600
     parallel: int = 1
+    feedback_rounds: int = 0
     repos_dir: Path = Path("benchmark/repos")
     output_dir: Path = Path("results")
 
@@ -76,6 +77,14 @@ class ExperimentConfig(BaseModel):
             raise ValueError(f"parallel must be >= 1, got {v}")
         return v
 
+    @model_validator(mode="after")
+    def _validate_feedback(self):
+        if self.feedback_rounds not in (0, 1):
+            raise ValueError("feedback_rounds must be 0 or 1")
+        if self.feedback_rounds and self.prompt != "evidence_v1":
+            raise ValueError("feedback_rounds requires --prompt evidence_v1")
+        return self
+
     @property
     def benchmark_path(self) -> Path:
         return BENCHMARKS[self.benchmark]
@@ -91,7 +100,8 @@ class ExperimentConfig(BaseModel):
     @property
     def run_dir(self) -> Path:
         """Where this experiment's per-task outputs live."""
-        return self.output_dir / self.prompt_hash / self.agent / self.model
+        base = self.output_dir / self.prompt_hash / self.agent / self.model
+        return base / "feedback_1" if self.feedback_rounds else base
 
     @property
     def benchmark_dir(self) -> Path:
@@ -151,6 +161,13 @@ def add_experiment_args(parser: argparse.ArgumentParser) -> None:
         help="Max concurrent agent runs (default: %(default)s, i.e. sequential)",
     )
     parser.add_argument(
+        "--feedback-rounds",
+        type=int,
+        choices=(0, 1),
+        default=0,
+        help="One verifier-guided repair attempt for evidence_v1 (default: %(default)s)",
+    )
+    parser.add_argument(
         "--repos-dir",
         default="benchmark/repos",
         help="Directory containing source repos (default: benchmark/repos)",
@@ -171,6 +188,7 @@ def config_from_args(args: argparse.Namespace) -> ExperimentConfig:
         repeats=args.repeats,
         timeout=args.timeout,
         parallel=args.parallel,
+        feedback_rounds=args.feedback_rounds,
         repos_dir=Path(args.repos_dir),
         output_dir=Path(args.output_dir),
     )

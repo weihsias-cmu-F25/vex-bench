@@ -193,8 +193,32 @@ Each report includes `feedback`: concrete repair items for invalid citations or
 local predicates, and category-specific questions for human semantic review.
 The verifier does not automatically request a model revision for
 `needs_review`, because its checks cannot establish whether free-text claims
-about reachability or mitigations are true. An agent revision loop remains a
-separate next step.
+about reachability or mitigations are true.
+
+To run one bounded repair attempt, add `--feedback-rounds 1` to **run, parse,
+and metrics**. This option requires `--prompt evidence_v1` and writes to a
+separate `feedback_1/` experiment directory, so the unassisted run is retained.
+The verifier requests a revision only for `invalid_input` or `unsupported`;
+`needs_review` still requires human semantic review. Each attempt keeps its
+exact prompt, raw agent output, and evidence report under `attempt_000/` or
+`attempt_001/`. `feedback_summary.json` records the decision transition.
+Parsing sums token usage and estimated cost across both attempts, including
+an invalid second answer. An interrupted revision can resume from an already
+recorded first attempt. Incomplete revisions count as failed classifications
+in the assisted experiment. If a provider request fails before returning any
+raw output, its possible billable usage cannot be recovered from local files.
+The `feedback` metrics also report paired **raw** binary correctness for the
+first and final answers; this does not measure whether the explanations are
+semantically supported.
+
+```bash
+uv run vex-bench evaluate run --benchmark milestone_demo --agent opencode \
+  --model <configured-model> --prompt evidence_v1 --feedback-rounds 1
+uv run vex-bench evaluate parse --benchmark milestone_demo --agent opencode \
+  --model <configured-model> --prompt evidence_v1 --feedback-rounds 1
+uv run vex-bench evaluate metrics --benchmark milestone_demo --agent opencode \
+  --model <configured-model> --prompt evidence_v1 --feedback-rounds 1
+```
 
 For `evidence_v1`, the run cache accepts only a complete structured answer
 whose task ID, CVE, and snapshot SHA match the task. A category-only answer is
@@ -222,6 +246,7 @@ Common evaluation options:
 | `--repeats` | `1` | Independent runs per task |
 | `--timeout` | `600` | Agent timeout per task, in seconds |
 | `--parallel` | `1` | Concurrent containers during the run stage |
+| `--feedback-rounds` | `0` | For `evidence_v1`, allow one verifier-guided repair attempt |
 | `--repos-dir` | `benchmark/repos` | Downloaded repository root |
 | `--output-dir` | `results` | Experiment output root |
 

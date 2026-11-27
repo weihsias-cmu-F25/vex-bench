@@ -5,6 +5,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+from pydantic import ValidationError
+
 from evaluate.agents.base import AgentResult
 from evaluate.agents.opencode import OpenCodeAgent
 from evaluate.common import BENCHMARKS, ExperimentConfig
@@ -186,6 +188,173 @@ class EvidencePipelineTests(unittest.TestCase):
         self.assertEqual(parse_explanation(cached.text, self.task).task_id, self.task["task_id"])
         _run_one(self.task, 1, config=self.config, agent=self.agent)
         self.agent.run.assert_called_once()
+
+    def feedback_config(self):
+        return ExperimentConfig(
+            model="kimi-k2.6",
+            agent="opencode",
+            benchmark="milestone_demo",
+            prompt="evidence_v1",
+            feedback_rounds=1,
+            repos_dir=self.config.repos_dir,
+            output_dir=self.config.output_dir,
+        )
+
+    def test_feedback_revision_preserves_attempts_and_counts_both_calls(self):
+        config = self.feedback_config()
+        bad = json.loads(json.dumps(self.payload))
+        bad["citations"][0]["quote"] = "fabricated"
+        self.agent.run = Mock(
+            side_effect=[
+                AgentResult(raw_output=self.export(json.dumps(bad))),
+                AgentResult(raw_output=self.export(json.dumps(self.payload))),
+            ]
+        )
+        _run_one(self.task, 1, config=config, agent=self.agent)
+        self.assertEqual(self.agent.run.call_count, 2)
+        second_prompt = self.agent.run.call_args_list[1].args[0]
+        self.assertIn("invalid_citation", second_prompt)
+        self.assertNotIn(self.task["ground_truth"], second_prompt)
+        run_dir = config.run_dir / self.task["task_id"] / "run_001"
+        self.assertTrue((run_dir / "attempt_000" / "result.json").is_file())
+        self.assertTrue((run_dir / "attempt_001" / "result.json").is_file())
+        self.assertEqual(
+            json.loads((run_dir / "feedback_summary.json").read_text())["final_decision"],
+            "needs_review",
+        )
+        row = _parse_run(self.agent, self.task, config, 1)
+        self.assertEqual(row["feedback_attempts"], 2)
+        self.assertEqual(row["input_tokens"], 60)
+        self.assertEqual(row["output_tokens"], 40)
+        self.assertAlmostEqual(row["cost_usd"], (60 * 0.60 + 40 * 2.50) / 1_000_000)
+        self.assertEqual(row["evidence_decision"], "needs_review")
+        self.assertEqual(row["feedback_initial_decision"], "unsupported")
+        self.assertEqual(row["initial_predicted_category"], "code_not_reachable")
+        self.assertEqual(
+            compute_metrics([row])["feedback"]["transition_counts"],
+            {"unsupported -> needs_review": 1},
+        )
+        self.assertEqual(
+            compute_metrics([row])["feedback"]["paired_raw_binary"],
+            {"cases": 1, "initial_correct": 1, "final_correct": 1, "category_changed": 0},
+        )
+        task_file = self.root / "tasks.jsonl"
+        task_file.write_text(json.dumps(self.task) + "\n")
+        with patch.dict(BENCHMARKS, {"milestone_demo": task_file}):
+            parse(config)
+            metrics(config)
+        scores = json.loads((config.benchmark_dir / "metrics.json").read_text())
+        self.assertEqual(scores["config"]["feedback_rounds"], 1)
+        self.assertEqual(scores["tokens"]["totals"]["input_tokens"], 60)
+        self.assertEqual(
+            scores["feedback"]["transition_counts"], {"unsupported -> needs_review": 1}
+        )
+        _run_one(self.task, 1, config=config, agent=self.agent)
+        self.assertEqual(self.agent.run.call_count, 2)
+
+    def test_needs_review_does_not_trigger_revision(self):
+        config = self.feedback_config()
+        self.agent.run = Mock(
+            return_value=AgentResult(raw_output=self.export(json.dumps(self.payload)))
+        )
+        _run_one(self.task, 1, config=config, agent=self.agent)
+        self.agent.run.assert_called_once()
+        row = _parse_run(self.agent, self.task, config, 1)
+        self.assertEqual(row["feedback_attempts"], 1)
+        self.assertEqual(row["evidence_decision"], "needs_review")
+
+    def test_evidence_repair_does_not_imply_classification_improvement(self):
+        config = self.feedback_config()
+        bad = json.loads(json.dumps(self.payload))
+        bad["citations"][0]["quote"] = "fabricated"
+        corrected_citation = json.loads(json.dumps(self.payload))
+        corrected_citation["category"] = "vulnerable"
+        self.agent.run = Mock(
+            side_effect=[
+                AgentResult(raw_output=self.export(json.dumps(bad))),
+                AgentResult(raw_output=self.export(json.dumps(corrected_citation))),
+            ]
+        )
+        _run_one(self.task, 1, config=config, agent=self.agent)
+        row = _parse_run(self.agent, self.task, config, 1)
+        paired = compute_metrics([row])["feedback"]["paired_raw_binary"]
+        self.assertEqual(row["evidence_decision"], "needs_review")
+        self.assertEqual(paired["initial_correct"], 1)
+        self.assertEqual(paired["final_correct"], 0)
+        self.assertEqual(paired["category_changed"], 1)
+
+    def test_interrupted_revision_resumes_without_repeating_first_call(self):
+        config = self.feedback_config()
+        bad = json.loads(json.dumps(self.payload))
+        bad["citations"][0]["quote"] = "fabricated"
+        self.agent.run = Mock(
+            side_effect=[
+                AgentResult(raw_output=self.export(json.dumps(bad))),
+                RuntimeError("provider unavailable"),
+            ]
+        )
+        _run_one(self.task, 1, config=config, agent=self.agent)
+        run_dir = config.run_dir / self.task["task_id"] / "run_001"
+        self.assertFalse((run_dir / "feedback_summary.json").exists())
+        self.assertTrue((run_dir / "error.txt").exists())
+        incomplete = _parse_run(self.agent, self.task, config, 1)
+        self.assertEqual(incomplete["status"], "revision_incomplete")
+        self.assertIsNone(incomplete["predicted"])
+        self.assertEqual(incomplete["input_tokens"], 30)
+        self.agent.run = Mock(
+            return_value=AgentResult(raw_output=self.export(json.dumps(self.payload)))
+        )
+        _run_one(self.task, 1, config=config, agent=self.agent)
+        self.agent.run.assert_called_once()
+        self.assertTrue((run_dir / "feedback_summary.json").exists())
+        self.assertFalse((run_dir / "error.txt").exists())
+        completed = _parse_run(self.agent, self.task, config, 1)
+        self.assertEqual(completed["status"], "ok")
+        self.assertEqual(completed["input_tokens"], 60)
+
+    def test_invalid_final_answer_retains_both_attempt_costs(self):
+        config = self.feedback_config()
+        invalid = self.export("no structured answer")
+        self.agent.run = Mock(
+            side_effect=[
+                AgentResult(raw_output=invalid),
+                AgentResult(raw_output=invalid),
+            ]
+        )
+        _run_one(self.task, 1, config=config, agent=self.agent)
+        row = _parse_run(self.agent, self.task, config, 1)
+        self.assertEqual(row["status"], "parse_fail")
+        self.assertEqual(row["evidence_decision"], "invalid_input")
+        self.assertEqual(row["feedback_attempts"], 2)
+        self.assertEqual(row["input_tokens"], 60)
+        self.assertIsNone(row["predicted"])
+
+    def test_stale_feedback_summary_is_not_scored_as_complete(self):
+        config = self.feedback_config()
+        self.agent.run = Mock(
+            return_value=AgentResult(raw_output=self.export(json.dumps(self.payload)))
+        )
+        _run_one(self.task, 1, config=config, agent=self.agent)
+        run_dir = config.run_dir / self.task["task_id"] / "run_001"
+        summary_path = run_dir / "feedback_summary.json"
+        summary = json.loads(summary_path.read_text())
+        summary["final_decision"] = "unsupported"
+        summary_path.write_text(json.dumps(summary))
+        row = _parse_run(self.agent, self.task, config, 1)
+        self.assertEqual(row["feedback_status"], "incomplete")
+        self.assertEqual(row["status"], "revision_incomplete")
+        self.assertIsNone(row["predicted"])
+
+    def test_feedback_option_requires_evidence_prompt(self):
+        with self.assertRaises(ValidationError):
+            ExperimentConfig(
+                model="kimi-k2.6",
+                agent="opencode",
+                benchmark="milestone_demo",
+                prompt="vuln",
+                feedback_rounds=1,
+            )
+        self.assertNotEqual(self.feedback_config().run_dir, self.config.run_dir)
 
 
 if __name__ == "__main__":

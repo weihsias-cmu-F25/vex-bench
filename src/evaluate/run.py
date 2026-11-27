@@ -9,6 +9,7 @@ from evaluate.common import (
     load_tasks,
     make_agent,
 )
+from evaluate.feedback_run import run_with_feedback
 from evidence.pipeline import parse_explanation
 from utils.repo import parse_owner_repo
 
@@ -34,6 +35,16 @@ def _run_one(task: dict, rep: int, *, config: ExperimentConfig, agent: Agent) ->
 
     run_dir_per_rep = config.run_dir / task_id / run_id
     error_path = run_dir_per_rep / "error.txt"
+    prompt = (
+        config.prompt_text.replace("{cve_id}", task["cve_id"])
+        .replace("{task_id}", task["task_id"])
+        .replace("{snapshot_sha}", task["commit_sha"])
+    )
+    if config.feedback_rounds:
+        run_with_feedback(
+            agent, task, prompt, src_cwd, config.repos_dir, run_dir_per_rep, config.timeout, tag
+        )
+        return
     cached = agent.load_result(run_dir_per_rep)
     evidence_cache_ok = True
     if cached is not None and config.prompt == "evidence_v1":
@@ -49,11 +60,6 @@ def _run_one(task: dict, rep: int, *, config: ExperimentConfig, agent: Agent) ->
         logger.info("%s [RE-RUN] cached result incomplete or unparseable: %s", tag, run_dir_per_rep)
 
     run_dir_per_rep.mkdir(parents=True, exist_ok=True)
-    prompt = (
-        config.prompt_text.replace("{cve_id}", task["cve_id"])
-        .replace("{task_id}", task["task_id"])
-        .replace("{snapshot_sha}", task["commit_sha"])
-    )
     logger.info("%s [RUN] src=%s lang=%s", tag, src_cwd, language)
     ctx = RunContext(
         cwd=src_cwd,
@@ -91,7 +97,13 @@ def run(config: ExperimentConfig) -> None:
     if not prompt_file.exists():
         prompt_file.write_text(config.prompt_text, encoding="utf-8")
 
-    logger.info("prompt=%s hash=%s parallel=%d", config.prompt, config.prompt_hash, config.parallel)
+    logger.info(
+        "prompt=%s hash=%s parallel=%d feedback_rounds=%d",
+        config.prompt,
+        config.prompt_hash,
+        config.parallel,
+        config.feedback_rounds,
+    )
 
     jobs = [(task, rep) for task in tasks for rep in range(1, config.repeats + 1)]
     total = len(jobs)

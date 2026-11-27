@@ -52,6 +52,8 @@ def compute_metrics(rows: list[dict]) -> dict:
     }
     if any("evidence_decision" in row for row in rows):
         out["evidence"] = _agg_evidence(rows)
+    if any("feedback_attempts" in row for row in rows):
+        out["feedback"] = _agg_feedback(rows)
     return out
 
 
@@ -79,6 +81,35 @@ def _agg_evidence(rows: list[dict]) -> dict:
     }
 
 
+def _agg_feedback(rows: list[dict]) -> dict:
+    feedback_rows = [row for row in rows if "feedback_attempts" in row]
+    labeled = [row for row in feedback_rows if row.get("ground_truth")]
+    transitions = Counter(
+        f"{row['feedback_initial_decision']} -> {row['feedback_final_decision']}"
+        for row in feedback_rows
+        if row.get("feedback_status") == "complete" and row.get("feedback_attempts", 0) > 1
+    )
+    return {
+        "total": len(feedback_rows),
+        "revision_attempted": sum(row["feedback_attempts"] > 1 for row in feedback_rows),
+        "completed": sum(row.get("feedback_status") == "complete" for row in feedback_rows),
+        "transition_counts": dict(transitions),
+        "paired_raw_binary": {
+            "cases": len(labeled),
+            "initial_correct": sum(
+                row.get("initial_predicted") == row["ground_truth"] for row in labeled
+            ),
+            "final_correct": sum(row.get("predicted") == row["ground_truth"] for row in labeled),
+            "category_changed": sum(
+                row.get("initial_predicted_category") is not None
+                and row.get("predicted_category") is not None
+                and row["initial_predicted_category"] != row["predicted_category"]
+                for row in labeled
+            ),
+        },
+    }
+
+
 def metrics(config: ExperimentConfig) -> None:
     """Read ``parsed.jsonl``, compute metrics, write ``metrics.json``."""
     parsed_path = config.benchmark_dir / "parsed.jsonl"
@@ -99,6 +130,7 @@ def metrics(config: ExperimentConfig) -> None:
             "model": config.model,
             "prompt_hash": config.prompt_hash,
             "repeats": config.repeats,
+            "feedback_rounds": config.feedback_rounds,
         },
         **compute_metrics(rows),
     }
@@ -450,6 +482,26 @@ def _print_report(out: dict) -> None:
         citations = evidence["citation_validity"]
         logger.info("  citations  %d / %d valid", citations["valid"], citations["total"])
         logger.info("  claims     %s", evidence["claim_status_counts"])
+
+    if "feedback" in out:
+        feedback = out["feedback"]
+        logger.info("\n=== Feedback attempts ===")
+        logger.info(
+            "  revisions  %d / %d cases (completed %d)",
+            feedback["revision_attempted"],
+            feedback["total"],
+            feedback["completed"],
+        )
+        logger.info("  transitions %s", feedback["transition_counts"])
+        paired = feedback["paired_raw_binary"]
+        logger.info(
+            "  raw binary  initial %d / %d, final %d / %d; categories changed %d",
+            paired["initial_correct"],
+            paired["cases"],
+            paired["final_correct"],
+            paired["cases"],
+            paired["category_changed"],
+        )
 
     logger.info("\n=== Tokens (per case, %d cases) ===", tokens["cases"])
     tot = tokens["totals"]
