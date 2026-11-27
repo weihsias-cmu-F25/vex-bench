@@ -3,6 +3,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
+from evidence.feedback import build_feedback
 from evidence.verifier import verify
 
 
@@ -20,7 +21,9 @@ def _run(args):
         payload = json.loads(args.input.read_text(encoding="utf-8"))
         report = verify(payload, args.repo, args.snapshot_sha)
     except (ValidationError, ValueError, OSError) as exc:
-        print(json.dumps({"decision": "invalid_input", "error": str(exc)}, indent=2))
+        report = {"decision": "invalid_input", "error": str(exc)}
+        report["feedback"] = build_feedback(report)
+        print(json.dumps(report, indent=2))
         raise SystemExit(2) from exc
     rendered = json.dumps(report, indent=2) + "\n"
     if args.output:

@@ -8,6 +8,7 @@ import ast
 import hashlib
 from pathlib import Path, PurePosixPath
 
+from evidence.feedback import build_feedback
 from evidence.schema import Explanation
 
 MAX_FILE_BYTES = 4 * 1024 * 1024
@@ -109,7 +110,7 @@ def verify(payload: dict, repo: Path, expected_snapshot_sha: str) -> dict:
 
     integrity = snapshot_matches and all(c["valid"] for c in checked)
     unsupported = not integrity or any(c["status"] == "unsupported" for c in claims)
-    return {
+    report = {
         "schema_version": 1,
         "task_id": explanation.task_id,
         "cve_id": explanation.cve_id,
@@ -130,3 +131,5 @@ def verify(payload: dict, repo: Path, expected_snapshot_sha: str) -> dict:
             "Affected-version resolution and effective mitigations require further analysis",
         ],
     }
+    report["feedback"] = build_feedback(report)
+    return report

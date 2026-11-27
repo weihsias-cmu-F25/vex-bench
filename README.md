@@ -189,6 +189,12 @@ and an unsupported citation (`unsupported`). A
 parseable category is still scored as the agent's **raw prediction**; evidence
 results do not certify its exploitability conclusion. In particular,
 `needs_review` is an abstention from verification, not a safety verdict.
+Each report includes `feedback`: concrete repair items for invalid citations or
+local predicates, and category-specific questions for human semantic review.
+The verifier does not automatically request a model revision for
+`needs_review`, because its checks cannot establish whether free-text claims
+about reachability or mitigations are true. An agent revision loop remains a
+separate next step.
 
 For `evidence_v1`, the run cache accepts only a complete structured answer
 whose task ID, CVE, and snapshot SHA match the task. A category-only answer is

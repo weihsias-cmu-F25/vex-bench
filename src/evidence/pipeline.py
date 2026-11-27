@@ -5,6 +5,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
+from evidence.feedback import build_feedback
 from evidence.schema import Explanation
 from evidence.verifier import verify
 from utils.repo import parse_owner_repo
@@ -34,13 +35,19 @@ def verify_agent_answer(text: str, task: dict, repos_dir: Path) -> dict:
     try:
         explanation = parse_explanation(text, task)
     except (ValueError, ValidationError) as exc:
-        return {"decision": "invalid_input", "error": str(exc)}
+        report = {"decision": "invalid_input", "error": str(exc)}
+        report["feedback"] = build_feedback(report)
+        return report
 
     owner, repo = parse_owner_repo(task["repo_url"])
     source = repos_dir / owner / repo / task["commit_sha"]
     if not source.is_dir():
-        return {"decision": "source_unavailable", "error": f"Source dir not found: {source}"}
+        report = {"decision": "source_unavailable", "error": f"Source dir not found: {source}"}
+        report["feedback"] = build_feedback(report)
+        return report
     try:
         return verify(explanation.model_dump(), source, task["commit_sha"])
     except (ValueError, OSError) as exc:
-        return {"decision": "source_unavailable", "error": str(exc)}
+        report = {"decision": "source_unavailable", "error": str(exc)}
+        report["feedback"] = build_feedback(report)
+        return report

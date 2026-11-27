@@ -98,6 +98,9 @@ class EvidencePipelineTests(unittest.TestCase):
         self.assertEqual(row["evidence_citations_valid"], 1)
         report = json.loads(Path(row["evidence_report"]).read_text())
         self.assertEqual(report["claims"][0]["status"], "verified_local_predicate")
+        self.assertFalse(report["feedback"]["revision_requested"])
+        self.assertTrue(report["feedback"]["human_review_required"])
+        self.assertIn("entry point", report["feedback"]["review_questions"][0])
         scores = compute_metrics([row])
         self.assertEqual(scores["evidence"]["decision_counts"], {"needs_review": 1})
         self.assertEqual(scores["evidence"]["citation_validity"]["rate"], 1.0)
@@ -122,6 +125,11 @@ class EvidencePipelineTests(unittest.TestCase):
         self.assertEqual(row["predicted_category"], "code_not_reachable")
         self.assertEqual(row["evidence_decision"], "unsupported")
         self.assertEqual(row["evidence_citations_valid"], 0)
+        report = json.loads(Path(row["evidence_report"]).read_text())
+        self.assertTrue(report["feedback"]["revision_requested"])
+        self.assertIn(
+            "invalid_citation", {repair["code"] for repair in report["feedback"]["repairs"]}
+        )
 
     def test_category_only_answer_is_invalid_evidence(self):
         self.result_path().write_text(
@@ -130,6 +138,8 @@ class EvidencePipelineTests(unittest.TestCase):
         row = _parse_run(self.agent, self.task, self.config, 1)
         self.assertEqual(row["predicted_category"], "code_not_reachable")
         self.assertEqual(row["evidence_decision"], "invalid_input")
+        report = json.loads(Path(row["evidence_report"]).read_text())
+        self.assertTrue(report["feedback"]["revision_requested"])
 
     def test_task_identity_mismatch_is_rejected(self):
         self.payload["task_id"] = "another-task"
@@ -142,6 +152,27 @@ class EvidencePipelineTests(unittest.TestCase):
         self.source.rmdir()
         report = verify_agent_answer(json.dumps(self.payload), self.task, self.config.repos_dir)
         self.assertEqual(report["decision"], "source_unavailable")
+        self.assertFalse(report["feedback"]["revision_requested"])
+        self.assertEqual(report["feedback"]["repairs"][0]["code"], "source_unavailable")
+
+    def test_semantic_overclaim_remains_for_human_review(self):
+        self.payload["claims"][0]["statement"] = "The entire application is safe"
+        self.payload["claims"][0]["predicate"] = {
+            "kind": "semantic",
+            "target": "Repository-wide unreachability",
+        }
+        report = verify_agent_answer(json.dumps(self.payload), self.task, self.config.repos_dir)
+        self.assertEqual(report["decision"], "needs_review")
+        self.assertTrue(report["feedback"]["human_review_required"])
+        self.assertFalse(report["feedback"]["revision_requested"])
+        self.assertEqual(report["feedback"]["review_claim_ids"], ["claim1"])
+
+    def test_absent_local_predicate_produces_claim_repair(self):
+        self.payload["claims"][0]["predicate"]["target"] = "pkg.missing"
+        report = verify_agent_answer(json.dumps(self.payload), self.task, self.config.repos_dir)
+        self.assertEqual(report["decision"], "unsupported")
+        self.assertEqual(report["feedback"]["repairs"][0]["code"], "unsupported_claim")
+        self.assertEqual(report["feedback"]["repairs"][0]["claim_id"], "claim1")
 
     def test_valid_structured_answer_is_required_for_cache(self):
         self.result_path().write_text(
