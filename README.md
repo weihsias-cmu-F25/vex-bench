@@ -165,7 +165,7 @@ for the full flag list shared by all three stages.
 
 ### Evidence-enabled experiment
 
-For the current three-case offline results and live-run blockers, see
+For the authored demos, live three-case pilot, and remaining work, see
 [Three-case evaluation status](OFFLINE_EVALUATION.md).
 
 Use the same benchmark, agent, model, and `evidence_v1` prompt for all three
@@ -214,6 +214,15 @@ The `feedback` metrics also report paired **raw** binary correctness for the
 first and final answers; this does not measure whether the explanations are
 semantically supported.
 
+The `opencode_host` adapter can run the three-case pilot through an authorized
+OpenCode v2 ChatGPT login when the Docker image build is unavailable. It copies
+each source snapshot to a temporary host directory and restricts OpenCode's
+tools to source reading and SHA-256 calculation. This is a host process, not a
+Docker sandbox. Its policy disables interactive web tools, so the pilot cannot
+check vulnerability advisories itself. The exact setup, commands, and results
+are in [Three-case evaluation status](OFFLINE_EVALUATION.md). Keep the OpenCode
+authentication database outside this repository.
+
 For semantic support, `evaluate parse --prompt evidence_v1` also writes a
 label-free `review_packet.json` and `review_annotation.template.json` when citation
 integrity is intact. A reviewer can score the obligations with
@@ -249,7 +258,7 @@ Common evaluation options:
 
 | Option | Default | Meaning |
 |---|---|---|
-| `--agent` | `opencode` | `codex`, `claude`, or `opencode` |
+| `--agent` | `opencode` | `codex`, `claude`, `opencode`, or `opencode_host` |
 | `--benchmark` | `vex_bench` | Registered benchmark name |
 | `--model` | `kimi-k2.6` | Model/deployment identifier for the selected agent |
 | `--prompt` | `vuln` | Prompt template registered in `src/evaluate/prompts.py` |
@@ -260,8 +269,9 @@ Common evaluation options:
 | `--repos-dir` | `benchmark/repos` | Downloaded repository root |
 | `--output-dir` | `results` | Experiment output root |
 
-Run `uv run vex-bench <command> --help` for command-specific details. OpenCode
-model aliases are registered in `src/evaluate/agents/opencode.py`; Codex and
+Run `uv run vex-bench <command> --help` for command-specific details. Docker
+OpenCode model aliases are registered in `src/evaluate/agents/opencode.py`;
+`opencode_host` currently accepts only `gpt-6.2-sol`. Codex and
 Claude model names must match the corresponding provider configuration or
 deployment. `--output-dir` controls where the files described in
 [Outputs and metrics](#outputs-and-metrics) below are written.
@@ -347,10 +357,12 @@ If you found VEX-Bench useful, please cite our paper.
 ## Local evidence-verifier extension
 
 This working branch adds `vex-bench verify`, a strict evidence schema, local AST
-checks, 27 tests and three-case authored demonstrations. It checks evidence
-integrity and local predicates. Exploitability conclusions still need review.
+checks, three-case authored demonstrations, and a live OpenCode pilot. It checks
+evidence integrity and local predicates. Exploitability conclusions still need
+review.
 
 See [the Chinese walkthrough](WALKTHROUGH.zh-TW.md) for setup and demo commands,
 and [the milestone report](MILESTONE_REPORT.md) for measured results and limitations.
 On this macOS setup, use `uv run --no-editable` to avoid hidden `.pth` import issues.
-The full paid-agent baseline has not been run.
+The three-case live baseline is complete; a larger independent assisted
+comparison remains open.
