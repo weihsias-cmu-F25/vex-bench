@@ -38,12 +38,17 @@ review; six have verified local predicates. All three verifier reports abstain
 at `needs_review`, and three label-free review packets were generated. No human
 review annotations have been collected.
 
-The upstream binary scorer maps `uncertain` to `not_exploitable`, yielding
-2/3 binary accuracy (two true negatives and one false negative). This is a
-scoring artifact of that mapping, not evidence that two cases are safe.
-Fine-grained category accuracy is 0/3. The recorded token totals are 46,825
-input, 111,872 cached input, 4,937 output, and 195 reasoning, for a combined
-163,829. The model has no entry in the repository's API pricing table, so the
+The repository's `to_binary` scorer maps `uncertain` to `not_exploitable`,
+yielding a **local** 2/3 binary accuracy (two true negatives and one false
+negative). This is a scoring artifact, not evidence that two cases are safe.
+The [VEX-Bench paper](https://arxiv.org/html/2609.08040v1) says predictions
+outside its five annotated labels are counted as `FAILED`. Because `uncertain`
+is outside that set, these three answers would be 0/3 under the paper's stated
+rule. The paper and repository scoring behavior differ here; do not compare
+our local 2/3 to the paper's reported accuracy. Fine-grained category accuracy
+is 0/3. The recorded token totals are 46,825 input, 111,872 cached input,
+4,937 output, and 195 reasoning, for a combined 163,829. The model has no
+entry in the repository's API pricing table, so the
 local metrics cannot give a USD cost. Subscription quota use is not a dollar
 cost estimate.
 
@@ -81,15 +86,22 @@ completed on all three cases with the same model, prompt, source snapshots,
 replayed baseline answers. All three were `uncertain`, all three verifier
 decisions were `needs_review`, and all 13/13 citations passed mechanical
 validation. No revision was requested. The exact-category accuracy was 0/3;
-the upstream binary score again gave 2/3 only because it maps `uncertain` to
-`not_exploitable`. Total recorded tokens were 47,551 input, 103,936 cached
-input, 5,009 output, and 361 reasoning, totaling 156,857. No USD cost could
-be calculated from the local pricing table. The
+the repository's local binary score again gave 2/3 only because it maps
+`uncertain` to `not_exploitable`. Under the paper's stated `FAILED` rule, these
+three answers would again be 0/3. Total recorded tokens were 47,551 input,
+103,936 cached input, 5,009 output, and 361 reasoning, totaling 156,857.
+No USD cost could be calculated from the local pricing table. The
 [independent-run receipt](reports/three_case_assisted/README.md) contains its
 answers, verifier reports, review packets, metrics, and raw-output hashes.
 The two runs show no observed classification or mechanical-evidence gain on
 these three cases. With no repair triggered, they cannot measure the effect
 of verifier feedback on a failed answer.
+
+These runs are a **feasibility pilot, not a replication of the paper**. The
+paper's agent retrieves vulnerability information from external sources and
+runs inside Docker; our host pilot denied web tools and used a different model
+and a stricter evidence prompt. Its all-`uncertain` behavior may reflect the
+missing advisory access, but this experiment does not isolate that cause.
 
 ## Live repair of a saved invalid answer
 

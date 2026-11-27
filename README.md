@@ -72,6 +72,11 @@ every other category maps to `not_exploitable`. The full category list,
 precedence rules, and mapping logic live in
 [`src/evaluate/prompts.py`](src/evaluate/prompts.py) and
 [`src/evaluate/result_parser.py`](src/evaluate/result_parser.py).
+This describes the repository scorer. The
+[paper's stated evaluation protocol](https://arxiv.org/html/2609.08040v1)
+counts predictions outside its five annotated categories as `FAILED`, so a
+local score that maps `uncertain` to `not_exploitable` is not directly
+comparable to the paper's reported accuracy.
 
 ## Quick start
 
