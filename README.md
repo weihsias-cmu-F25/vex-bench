@@ -211,6 +211,11 @@ The `feedback` metrics also report paired **raw** binary correctness for the
 first and final answers; this does not measure whether the explanations are
 semantically supported.
 
+For semantic support, `evaluate parse --prompt evidence_v1` also writes a
+label-free `review_packet.json` and `review_annotation.template.json` when citation
+integrity is intact. A reviewer can score the obligations with
+`vex-bench review score`; see [Semantic evidence review protocol](SEMANTIC_REVIEW.md).
+
 ```bash
 uv run vex-bench evaluate run --benchmark milestone_demo --agent opencode \
   --model <configured-model> --prompt evidence_v1 --feedback-rounds 1
@@ -233,6 +238,8 @@ vex-bench download [TASKS.jsonl]
 vex-bench evaluate run
 vex-bench evaluate parse
 vex-bench evaluate metrics
+vex-bench review prepare
+vex-bench review score
 ```
 
 Common evaluation options:

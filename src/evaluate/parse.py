@@ -12,7 +12,8 @@ from evaluate.common import (
 )
 from evaluate.pricing import cost_usd
 from evaluate.result_parser import normalize_ground_truth, to_binary
-from evidence.pipeline import verify_agent_answer
+from evidence.pipeline import parse_explanation, verify_agent_answer
+from evidence.semantic_review import annotation_template, make_review_packet
 
 logger = logging.getLogger(__name__)
 
@@ -148,11 +149,25 @@ def _attach_evidence(
 ) -> None:
     report = verify_agent_answer(answer, task, config.repos_dir)
     path.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    packet_path = path.with_name("review_packet.json")
+    template_path = path.with_name("review_annotation.template.json")
+    packet_path.unlink(missing_ok=True)
+    template_path.unlink(missing_ok=True)
     row["evidence_decision"] = report["decision"]
     row["evidence_report"] = str(path)
     row["evidence_citations_valid"] = sum(c["valid"] for c in report.get("citations", []))
     row["evidence_citations_total"] = len(report.get("citations", []))
     row["evidence_claim_statuses"] = [c["status"] for c in report.get("claims", [])]
+    if report["decision"] == "needs_review":
+        packet = make_review_packet(parse_explanation(answer, task), report)
+        packet_path.write_text(
+            json.dumps(packet, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+        template_path.write_text(
+            json.dumps(annotation_template(packet), indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        row["review_packet"] = str(packet_path)
 
 
 def _attempt_stats(agent: Agent, run_dir: Path) -> tuple[RunStats | None, int]:

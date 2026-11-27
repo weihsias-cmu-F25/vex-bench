@@ -98,6 +98,11 @@ class EvidencePipelineTests(unittest.TestCase):
         self.assertEqual(row["predicted"], "not_exploitable")
         self.assertEqual(row["evidence_decision"], "needs_review")
         self.assertEqual(row["evidence_citations_valid"], 1)
+        packet = json.loads(Path(row["review_packet"]).read_text())
+        self.assertNotIn("ground_truth", json.dumps(packet))
+        self.assertTrue(
+            Path(row["review_packet"]).with_name("review_annotation.template.json").is_file()
+        )
         report = json.loads(Path(row["evidence_report"]).read_text())
         self.assertEqual(report["claims"][0]["status"], "verified_local_predicate")
         self.assertFalse(report["feedback"]["revision_requested"])
@@ -127,6 +132,7 @@ class EvidencePipelineTests(unittest.TestCase):
         self.assertEqual(row["predicted_category"], "code_not_reachable")
         self.assertEqual(row["evidence_decision"], "unsupported")
         self.assertEqual(row["evidence_citations_valid"], 0)
+        self.assertNotIn("review_packet", row)
         report = json.loads(Path(row["evidence_report"]).read_text())
         self.assertTrue(report["feedback"]["revision_requested"])
         self.assertIn(
